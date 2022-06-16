@@ -89,20 +89,24 @@ HWND CWnd::Create(HINSTANCE _hInstance, int _nCmdShow,
 		return m_hWnd;
 }
 
-HRESULT CWnd::InitRenderTarget(const wstring& _wsImageFileName)
+HRESULT CWnd::InitTarget()
 {
 	HRESULT hr = S_OK;
 
-	// D2D1
-	hr = CD2DCore::GetInst()->Init(m_hWnd, &m_pRenderTarget);
+	hr = CD2DCore::GetInst()->InitFactory();
+	hr = CD2DCore::GetInst()->InitRenderTarget(m_hWnd, &m_pRenderTarget);
 	if (FAILED(hr)) return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CWnd::InitBitmap(const wstring& _wsImageFileName)
+{
+	HRESULT hr = S_OK;
 
 	m_pMyBitmap = new CBitmap();
 	hr = m_pMyBitmap->Create(_wsImageFileName, m_pRenderTarget);
 	if (FAILED(hr)) return E_FAIL;
-
-	/*m_pRenderTarget = CD2DCore::GetInst()->GetMainRT();
-	if (FAILED(hr)) return E_FAIL;*/
 
 	return S_OK;
 }
@@ -134,29 +138,21 @@ LRESULT CALLBACK CWnd::WndProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM
 				return E_FAIL;
 		}
 	}
-	else
-	{
-		window = reinterpret_cast<CWnd*>(GetWindowLongPtr(_hWnd, GWLP_USERDATA));
-	}
+	else { window = reinterpret_cast<CWnd*>(GetWindowLongPtr(_hWnd, GWLP_USERDATA)); }
 
-	if (window)
-	{
-		return window->WndMsgProc(_hWnd, _message, _wParam, _lParam);
-	}
+	if (window) { return window->WndMsgProc(_hWnd, _message, _wParam, _lParam); }
 
 	return DefWindowProc(_hWnd, _message, _wParam, _lParam);
 }
 
 void CWnd::Update()
 {
-
+	// TEST
+	//CD2DCore::GetInst()->Test();
 }
 
 void CWnd::Render()
 {
-	/*ID2D1HwndRenderTarget* pMainRT = CD2DCore::GetInst()->GetMainRT();
-	ID2D1Bitmap* pD2DBitmap = CD2DCore::GetInst()->GetMainD2D1Bitmap();*/
-
 	ID2D1HwndRenderTarget* pRenderTarget = GetRT();
 	ID2D1Bitmap* pD2DBitmap = GetMyBitmap()->GetD2DBitmap();
 
@@ -186,6 +182,15 @@ void CWnd::Render()
 
 void CWnd::Release()
 {
-	if (m_pMyBitmap) { m_pMyBitmap->Release(); m_pMyBitmap = nullptr; }
-	if (m_pRenderTarget) { m_pRenderTarget->Release(); m_pRenderTarget = nullptr; }
+	if (m_pMyBitmap) { 
+		m_pMyBitmap->Release();
+		delete m_pMyBitmap;
+		m_pMyBitmap = nullptr; 
+	}
+
+	if (m_pRenderTarget) { 
+		m_pRenderTarget->Release();
+		//delete m_pRenderTarget; // RenderTarget은 Window측에서 직접 delete해주는 것이다.
+		m_pRenderTarget = nullptr;
+	}
 }

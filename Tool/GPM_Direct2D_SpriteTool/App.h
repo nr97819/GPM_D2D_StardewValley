@@ -3,16 +3,22 @@
 #include "Bitmap.h"
 #include "Wnd.h"
 
+#include <vector>
+
+enum class WND_TYPE
+{
+	Tool,
+	Img,
+
+	LAST_INDEX
+};
 
 class CApp
 {
 private:
 	HINSTANCE				m_hInstance;
 
-	//CWnd* m_Wnd[2];
-
-	CWnd*				m_pMainWindow;
-	CWnd*				m_pToolWindow;
+	CWnd*					m_arrWnds[(UINT)WND_TYPE::LAST_INDEX];
 
 public:
 	CApp();

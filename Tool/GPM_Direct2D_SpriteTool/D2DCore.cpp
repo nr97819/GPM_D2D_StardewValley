@@ -8,7 +8,7 @@
 CD2DCore::CD2DCore()
 	: m_pD2D1Factory(nullptr)
 	, m_pDWriteFactory(nullptr)
-	, m_pWICFactory(nullptr)
+	, m_pIWICFactory(nullptr)
 	//, m_pDWriteTextFormat(nullptr)
 
 	/*, m_pD2DMainBitmap(nullptr)
@@ -24,80 +24,50 @@ CD2DCore::CD2DCore()
 CD2DCore::~CD2DCore()
 {}
 
-HRESULT CD2DCore::Init(HWND _hWnd, ID2D1HwndRenderTarget** _pRenderTarget)
+HRESULT CD2DCore::InitFactory()
 {
 	HRESULT hr = S_OK;
 
-	//m_hMainWnd = _hWnd;
-
+	// Factory 1
 	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2D1Factory);
 	if (FAILED(hr)) return hr;
 
+	// Factory 2
 	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
 		reinterpret_cast<IUnknown**>(&m_pDWriteFactory));
 	if (FAILED(hr)) return hr;
-
-	hr = CoCreateInstance(CLSID_WICImagingFactory, NULL,
-		CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_pWICFactory));
+	
+	// Factory 3
+	hr = CoCreateInstance(
+		CLSID_WICImagingFactory, 
+		NULL,
+		CLSCTX_INPROC_SERVER, 
+		IID_PPV_ARGS(&m_pIWICFactory)
+	);
 	if (FAILED(hr)) return hr;
 
-	// Render Target
+	return S_OK;
+}
+
+HRESULT CD2DCore::InitRenderTarget(HWND _hWnd, ID2D1HwndRenderTarget** _pRenderTarget)
+{
 	RECT rc;
 	GetClientRect(_hWnd, &rc);
 
 	m_pD2D1Factory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
 		D2D1::HwndRenderTargetProperties(_hWnd,
-			D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
-		_pRenderTarget);
+			D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)), _pRenderTarget);
 
 	return S_OK;
 }
-
-//HRESULT CD2DCore::InitTool(HWND _hWnd)
-//{
-//	HRESULT hr = S_OK;
-//
-//	m_hToolWnd = _hWnd;
-//
-//	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2D1Factory);
-//	if (FAILED(hr)) return hr;
-//
-//	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-//		reinterpret_cast<IUnknown**>(&m_pDWriteFactory));
-//	if (FAILED(hr)) return hr;
-//
-//	hr = CoCreateInstance(CLSID_WICImagingFactory, NULL,
-//		CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_pWICFactory));
-//	if (FAILED(hr)) return hr;
-//
-//	// Render Target
-//	RECT rcTool;
-//	GetClientRect(m_hToolWnd, &rcTool);
-//
-//	m_pD2D1Factory->CreateHwndRenderTarget(
-//		D2D1::RenderTargetProperties(),
-//		D2D1::HwndRenderTargetProperties(m_hToolWnd,
-//			D2D1::SizeU(rcTool.right - rcTool.left, rcTool.bottom - rcTool.top)),
-//		&m_pToolRT);
-//
-//	return S_OK;
-//}
 
 void CD2DCore::Release()
 {
 	if (m_pD2D1Factory) { m_pD2D1Factory->Release(); m_pD2D1Factory = nullptr; }
 	if (m_pDWriteFactory) { m_pDWriteFactory->Release(); m_pDWriteFactory = nullptr; }
-	if (m_pWICFactory) { m_pWICFactory->Release(); m_pWICFactory = nullptr; }
+	if (m_pIWICFactory) { m_pIWICFactory->Release(); m_pIWICFactory = nullptr; }
 	//if (m_pDWriteTextFormat) { m_pDWriteTextFormat->Release(); m_pDWriteTextFormat = nullptr; }
-
-	// [ Main ]
-	/*if (m_pD2DMainBitmap) { m_pD2DMainBitmap->Release(); m_pD2DMainBitmap = nullptr; }
-	if (m_pMainRT) { m_pMainRT->Release(); m_pMainRT = nullptr; }*/
-
-	// [ Tool ]
-	/*if (m_pD2DToolBitmap) { m_pD2DToolBitmap->Release(); m_pD2DToolBitmap = nullptr; }
-	if (m_pToolRT) { m_pToolRT->Release(); m_pToolRT = nullptr; }*/
 }
 
 /*
@@ -123,7 +93,7 @@ HRESULT CD2DCore::CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTa
 	IWICFormatConverter* pConverter = nullptr;
 
 	// 1. Load Bitmap
-	hr = m_pWICFactory->CreateDecoderFromFilename(
+	hr = m_pIWICFactory->CreateDecoderFromFilename(
 		_wsFileName.c_str(),	// Image File Name
 		NULL,
 		GENERIC_READ,	//desired read access to the file
@@ -136,7 +106,7 @@ HRESULT CD2DCore::CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTa
 	if (FAILED(hr)) return hr;
 
 	// 3. 컨버터 설정
-	hr = m_pWICFactory->CreateFormatConverter(&pConverter);
+	hr = m_pIWICFactory->CreateFormatConverter(&pConverter);
 	if (FAILED(hr)) return hr;
 
 	hr = pConverter->Initialize(pFrame,

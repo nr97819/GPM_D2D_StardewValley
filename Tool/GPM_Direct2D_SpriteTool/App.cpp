@@ -7,8 +7,8 @@
 
 CApp::CApp()
 	: m_hInstance(nullptr)
-	, m_pMainWindow(nullptr)
-	, m_pToolWindow(nullptr)
+
+	, m_arrWnds{}
 {
 }
 
@@ -25,26 +25,34 @@ HRESULT CApp::Init(HINSTANCE _hInstance, int _nCmdShow)
 
 HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 {
-	HWND m_hWnd = NULL;
+	HWND tempHWnd = NULL;
 	wstring wsFilePath = L"images\\";
 
 	// [ Main ]
-	m_pMainWindow = new CToolView();
-	m_hWnd = m_pMainWindow->Create(_hInstance, _nCmdShow, L"MainApp", L"Main Window App", CWnd::WndProc, true); // Show Window 분리 필요
-	if (NULL == m_hWnd)
+	m_arrWnds[(UINT)WND_TYPE::Tool] = new CToolView();
+	tempHWnd = m_arrWnds[(UINT)WND_TYPE::Tool]->Create(_hInstance, _nCmdShow, L"MainApp", L"Main Window App", CWnd::WndProc, true); // Show Window 분리 필요
+	if (NULL == tempHWnd)
 		return E_FAIL;
-	m_pMainWindow->_ShowWindow();
-	m_pMainWindow->InitRenderTarget(wsFilePath + L"midnight.png");
-	m_pMainWindow->Adjust(POINT{ 1000, 700 }, POINT{ 100, 100 });
+	m_arrWnds[(UINT)WND_TYPE::Tool]->_ShowWindow();
+	m_arrWnds[(UINT)WND_TYPE::Tool]->InitTarget();
+	m_arrWnds[(UINT)WND_TYPE::Tool]->InitBitmap(wsFilePath + L"midnight.png");
+	m_arrWnds[(UINT)WND_TYPE::Tool]->Adjust(
+		POINT{ 1000, 700 },
+		POINT{ 100, 100 }
+	);
 
 	// [ Tool ]
-	m_pToolWindow = new CImgView();
-	m_hWnd = m_pToolWindow->Create(_hInstance, _nCmdShow, L"ToolApp", L"Tool Window App", CWnd::WndProc, false);
-	if (NULL == m_hWnd)
+	m_arrWnds[(UINT)WND_TYPE::Img] = new CImgView();
+	tempHWnd = m_arrWnds[(UINT)WND_TYPE::Img]->Create(_hInstance, _nCmdShow, L"ToolApp", L"Tool Window App", CWnd::WndProc, false);
+	if (NULL == tempHWnd)
 		return E_FAIL;
-	m_pToolWindow->_ShowWindow();
-	m_pToolWindow->InitRenderTarget(wsFilePath + L"woman.png"); //전용 함수 필요
-	m_pToolWindow->Adjust(POINT{ 300, 700 }, POINT{ ((int)m_pMainWindow->GetRT()->GetSize().width + 100), 100 });
+	m_arrWnds[(UINT)WND_TYPE::Img]->_ShowWindow();
+	m_arrWnds[(UINT)WND_TYPE::Img]->InitTarget();
+	m_arrWnds[(UINT)WND_TYPE::Img]->InitBitmap(wsFilePath + L"woman.png");
+	m_arrWnds[(UINT)WND_TYPE::Img]->Adjust(
+		POINT{ 300, 700 }, 
+		POINT{ ((int)m_arrWnds[(UINT)WND_TYPE::Tool]->GetRT()->GetSize().width + 100), 100 } // 옆에 고정
+	);
 
 	// Tool Window 크기 조정하면 Main Window도 영향을 받아서, 되돌리는 코드
 	//m_pMainWindow->GetRT()->Resize({ (UINT32)m_pMainWindow->GetRT()->GetSize().width, (UINT32)700 });
@@ -65,17 +73,13 @@ int CApp::Run()
 
 void CApp::Release()
 {
-	if (m_pMainWindow) 
-	{ 
-		m_pMainWindow->Release(); 
-		delete m_pMainWindow; 
-		m_pMainWindow = nullptr; 
-	}
-
-	if (m_pToolWindow) 
-	{ 
-		m_pToolWindow->Release(); 
-		delete m_pToolWindow; 
-		m_pToolWindow = nullptr; 
+	for (UINT i = 0; i < (UINT)WND_TYPE::LAST_INDEX; ++i)
+	{
+		if (m_arrWnds[i])
+		{
+			m_arrWnds[i]->Release();
+			delete m_arrWnds[i];
+			m_arrWnds[i] = nullptr;
+		}
 	}
 }

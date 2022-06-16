@@ -26,11 +26,8 @@ HRESULT CBitmap::Create(const wstring& _wsFileName, ID2D1HwndRenderTarget* _pRen
 
 void CBitmap::Release()
 {
-	// 해제 불가능한 이유를 모르겠다.
-	
-	//if (m_pD2DMainBitmap) { m_pD2DMainBitmap->Release(); m_pD2DMainBitmap = nullptr; }
-	//if (m_pD2DToolBitmap) { m_pD2DToolBitmap->Release(); m_pD2DToolBitmap = nullptr; }
-
-	if (nullptr != this)
-		delete this;
+	if (m_pD2DBitmap) { 
+		m_pD2DBitmap->Release(); 
+		m_pD2DBitmap = nullptr; 
+	}
 }
