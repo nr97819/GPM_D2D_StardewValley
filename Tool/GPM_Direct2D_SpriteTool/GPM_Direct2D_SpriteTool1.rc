@@ -59,8 +59,13 @@ BEGIN
     END
     POPUP "Sprite"
     BEGIN
-        MENUITEM "Auto Split",                  ID_SPRITE_AUTOSPLIT
-        MENUITEM "Grid Split",                  ID_SPRITE_GRIDSPLIT
+        MENUITEM "Auto Slice",                  ID_SPRITE_AUTOSPLIT
+        MENUITEM "Grid Slice",                  ID_SPRITE_GRIDSPLIT
+        MENUITEM "Drag Slice",                  ID_SPRITE_DRAGSLICE
+    END
+    POPUP "Color"
+    BEGIN
+        MENUITEM "Set Alpha Zero",              ID_COLOR_SETALPHAZERO
     END
 END
 

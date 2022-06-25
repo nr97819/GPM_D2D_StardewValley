@@ -26,7 +26,8 @@ HRESULT CBitmap::Create(const wstring& _wsFileName, ID2D1HwndRenderTarget* _pRen
 
 void CBitmap::Release()
 {
-	if (m_pD2DBitmap) { 
+	if (m_pD2DBitmap) 
+	{ 
 		m_pD2DBitmap->Release(); 
 		m_pD2DBitmap = nullptr; 
 	}

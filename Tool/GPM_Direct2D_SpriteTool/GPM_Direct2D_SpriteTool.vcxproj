@@ -145,6 +145,7 @@
     <ClCompile Include="D2DCore.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="GPM_Direct2D_SpriteTool.cpp" />
+    <ClCompile Include="WICBitmap.cpp" />
     <ClCompile Include="Wnd.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +155,7 @@
     <ClInclude Include="D2DCore.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="resource1.h" />
+    <ClInclude Include="WICBitmap.h" />
     <ClInclude Include="Wnd.h" />
   </ItemGroup>
   <ItemGroup>

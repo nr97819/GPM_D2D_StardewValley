@@ -3,11 +3,13 @@
 #include "D2DCore.h"
 
 CWnd::CWnd()
-	: m_pMyBitmap(nullptr)
-	, m_pRenderTarget(nullptr)
+	: m_pRenderTarget(nullptr)
 	, m_hWnd(nullptr)
 	, m_hInstance(0)
 	, m_nCmdShow(0)
+
+	, m_pMyBitmap(nullptr)
+	, m_pMyWICBitmap(nullptr)
 {
 }
 
@@ -106,6 +108,9 @@ HRESULT CWnd::InitBitmap(const wstring& _wsImageFileName)
 
 	m_pMyBitmap = new CBitmap();
 	hr = m_pMyBitmap->Create(_wsImageFileName, m_pRenderTarget);
+
+	m_pMyWICBitmap = new CWICBitmap();
+	hr = m_pMyWICBitmap->Create(_wsImageFileName, m_pRenderTarget);
 	if (FAILED(hr)) return E_FAIL;
 
 	return S_OK;
@@ -147,14 +152,14 @@ LRESULT CALLBACK CWnd::WndProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM
 
 void CWnd::Update()
 {
-	// TEST
-	//CD2DCore::GetInst()->Test();
+	// TEST (사용 안함)
+	CD2DCore::GetInst()->Test();
 }
 
 void CWnd::Render()
 {
 	ID2D1HwndRenderTarget* pRenderTarget = GetRT();
-	ID2D1Bitmap* pD2DBitmap = GetMyBitmap()->GetD2DBitmap();
+	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());
 
 	pRenderTarget->BeginDraw();
 	D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
@@ -165,9 +170,9 @@ void CWnd::Render()
 	pRenderTarget->DrawBitmap(
 		pD2DBitmap,
 		D2D1::RectF(
-			10.f, 10.f,
-			10.f + pD2DBitmap->GetSize().width,
-			10.f + pD2DBitmap->GetSize().height
+			0.f, 0.f,
+			0.f + pD2DBitmap->GetSize().width,
+			0.f + pD2DBitmap->GetSize().height
 		),
 		1.0f, // Alpha 값
 		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,

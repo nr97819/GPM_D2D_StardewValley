@@ -9,21 +9,29 @@
 #include <string>
 using std::wstring;
 
-class CBitmap
+class CWICBitmap
 {
 private:
-	ID2D1Bitmap* m_pD2DBitmap;
+	IWICBitmap*		m_pWICBitmap;
+
+	UINT			m_cbBufferSize;
+
+	UINT			m_width;
+	UINT			m_height;
 
 public:
-	CBitmap();
-	~CBitmap();
+	CWICBitmap();
+	~CWICBitmap();
 
 public:
 	HRESULT Create(const wstring& _wsFileName, ID2D1HwndRenderTarget* _pRenderTarget);
 	void Release();
 
 public:
-	ID2D1Bitmap** GetD2DBitmap() { return &m_pD2DBitmap; }
-	void SetD2D1Bitmap(ID2D1Bitmap** _pD2D1Bitmap) { m_pD2DBitmap = *_pD2D1Bitmap; }
+	IWICBitmap* GetWICBitmap() { return m_pWICBitmap; }
+
+public:
+	DWORD GetPixelColor(UINT _x, UINT _y, UINT _width, UINT _height);
+	void SetAlphaZero(DWORD _rgbaValue);
 };
 

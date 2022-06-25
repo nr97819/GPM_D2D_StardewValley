@@ -40,6 +40,9 @@
     <ClCompile Include="Wnd.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClCompile>
+    <ClCompile Include="WICBitmap.cpp">
+      <Filter>소스 파일\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2DCore.h">
@@ -60,6 +63,9 @@
     </ClInclude>
     <ClInclude Include="Wnd.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="WICBitmap.h">
+      <Filter>소스 파일\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,8 @@ CD2DCore::CD2DCore()
 	: m_pD2D1Factory(nullptr)
 	, m_pDWriteFactory(nullptr)
 	, m_pIWICFactory(nullptr)
+
+	, m_pIWICBitmap(nullptr)
 	//, m_pDWriteTextFormat(nullptr)
 
 	/*, m_pD2DMainBitmap(nullptr)
@@ -29,23 +31,23 @@ HRESULT CD2DCore::InitFactory()
 	HRESULT hr = S_OK;
 
 	// Factory 1
-	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2D1Factory);
-	if (FAILED(hr)) return hr;
-
-	// Factory 2
-	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-		reinterpret_cast<IUnknown**>(&m_pDWriteFactory));
-	if (FAILED(hr)) return hr;
-	
-	// Factory 3
 	hr = CoCreateInstance(
-		CLSID_WICImagingFactory, 
+		CLSID_WICImagingFactory,
 		NULL,
-		CLSCTX_INPROC_SERVER, 
+		CLSCTX_INPROC_SERVER,
 		IID_PPV_ARGS(&m_pIWICFactory)
 	);
 	if (FAILED(hr)) return hr;
 
+	// Factory 2
+	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2D1Factory);
+	if (FAILED(hr)) return hr;
+
+	// Factory 3
+	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+		reinterpret_cast<IUnknown**>(&m_pDWriteFactory));
+	if (FAILED(hr)) return hr;
+	
 	return S_OK;
 }
 
@@ -68,6 +70,8 @@ void CD2DCore::Release()
 	if (m_pDWriteFactory) { m_pDWriteFactory->Release(); m_pDWriteFactory = nullptr; }
 	if (m_pIWICFactory) { m_pIWICFactory->Release(); m_pIWICFactory = nullptr; }
 	//if (m_pDWriteTextFormat) { m_pDWriteTextFormat->Release(); m_pDWriteTextFormat = nullptr; }
+
+	::SafeRelease(m_pIWICBitmap);
 }
 
 /*
@@ -88,9 +92,10 @@ HRESULT CD2DCore::CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTa
 {
 	HRESULT hr = S_OK;
 
-	IWICBitmapDecoder* pDecoder = nullptr;
-	IWICBitmapFrameDecode* pFrame = nullptr;
-	IWICFormatConverter* pConverter = nullptr;
+	IWICBitmapDecoder*			pIDecoder = nullptr;
+	IWICBitmapFrameDecode*		pIDecoderFrame = nullptr;
+	IWICFormatConverter*		pIConverter = nullptr;
+	//IWICBitmap*					pIBitmap = nullptr;
 
 	// 1. Load Bitmap
 	hr = m_pIWICFactory->CreateDecoderFromFilename(
@@ -98,18 +103,18 @@ HRESULT CD2DCore::CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTa
 		NULL,
 		GENERIC_READ,	//desired read access to the file
 		WICDecodeMetadataCacheOnLoad, // cache metadata when needed
-		&pDecoder);
+		&pIDecoder);
 	if (FAILED(hr)) return hr;
 
 	// 2. 0번 프레임을 열기
-	hr = pDecoder->GetFrame(0, &pFrame); // 0번 프레임만 쓰니까 (영상이면 프레임 여럿)
+	hr = pIDecoder->GetFrame(0, &pIDecoderFrame); // 0번 프레임만 쓰니까 (영상이면 프레임 여럿)
 	if (FAILED(hr)) return hr;
 
 	// 3. 컨버터 설정
-	hr = m_pIWICFactory->CreateFormatConverter(&pConverter);
+	hr = m_pIWICFactory->CreateFormatConverter(&pIConverter);
 	if (FAILED(hr)) return hr;
 
-	hr = pConverter->Initialize(pFrame,
+	hr = pIConverter->Initialize(pIDecoderFrame,
 		GUID_WICPixelFormat32bppPBGRA,
 		WICBitmapDitherTypeNone,
 		NULL,
@@ -118,13 +123,48 @@ HRESULT CD2DCore::CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTa
 	if (FAILED(hr)) return hr;
 
 	// 4. WIC 비트맵으로부터 -> D2D비트맵 만들기
-	hr = _pRenderTarget->CreateBitmapFromWicBitmap(pConverter, NULL, _pD2D1Bitmap);
+	hr = _pRenderTarget->CreateBitmapFromWicBitmap(pIConverter, NULL, _pD2D1Bitmap);
 	if (FAILED(hr)) return hr;
 
-	// 5. 쓰고 난 뒤, 모두 해제 필수
-	if (pConverter) { pConverter->Release(); pConverter = nullptr; }
-	if (pFrame) { pFrame->Release(); pFrame = nullptr; }
-	if (pDecoder) { pDecoder->Release(); pDecoder = nullptr; }
+	// 4. 이전에 가져온 이미지 프레임에서 IWICBitmap 을 만든다
+	if (SUCCEEDED(hr))
+	{
+		hr = m_pIWICFactory->CreateBitmapFromSource(
+			pIDecoderFrame,			// Create a bitmap from the image frame
+			WICBitmapCacheOnDemand,	// Cache bitmap pixels on first access
+			&m_pIWICBitmap);				// Pointer to the bitmap
+	}
+
+	// 5. IWICBitmap의 지정된 사각형에 대한 IWICBitmapLock을 가져온다
+	// 6. 이제 IWICBitmapLock 개체에 의해 잠긴 픽셀 데이터를 처리합니다.
+
+	// 7. 만든 개체를 정리합니다.
+	::SafeRelease(pIDecoder);
+	::SafeRelease(pIDecoderFrame);
 
 	return S_OK;
+}
+
+HRESULT CD2DCore::CreateD2D1BitampFromWICBitmap(ID2D1HwndRenderTarget* _pRT, IWICBitmap* _iWICBitmap, ID2D1Bitmap** _iD2D1bitmap)
+{
+	HRESULT hr = S_OK;
+
+	// 이미지 변환 객체 
+	IWICFormatConverter* p_converter;
+	// IWICBitmap형식의 비트맵을 ID2D1Bitmap. 형식으로 변환하기 위한 객체 생성 
+	m_pIWICFactory->CreateFormatConverter(&p_converter);
+	// 선택된 그림을 어떤 형식의 비트맵으로 변환할 것인지 설정한다. 
+	p_converter->Initialize(_iWICBitmap, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone,
+		NULL, 0.0f, WICBitmapPaletteTypeCustom);
+
+	hr = _pRT->CreateBitmapFromWicBitmap(
+		p_converter,
+		NULL,
+		_iD2D1bitmap);
+
+	if (FAILED(hr))
+		return E_FAIL;
+	else
+		return S_OK;
+
 }

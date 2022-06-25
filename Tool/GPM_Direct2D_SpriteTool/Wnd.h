@@ -5,6 +5,8 @@
 #include "Bitmap.h"
 #include "resource1.h"
 
+#include "WICBitmap.h"
+
 typedef LRESULT (CALLBACK *PROC_FPTR)(HWND, UINT, WPARAM, LPARAM);
 typedef LRESULT (*PROC_MSG_FPTR)(HWND, UINT, WPARAM, LPARAM);
 
@@ -19,7 +21,9 @@ protected:
 
 	HWND					m_hWnd;
 	ID2D1HwndRenderTarget*	m_pRenderTarget;
+
 	CBitmap*				m_pMyBitmap;
+	CWICBitmap*				m_pMyWICBitmap;
 
 public:
 	CWnd();

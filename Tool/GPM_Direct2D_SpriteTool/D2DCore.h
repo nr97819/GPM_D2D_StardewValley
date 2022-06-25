@@ -10,28 +10,33 @@
 #include <string>
 using std::wstring;
 
-//template <typename T> UINT SafeRelease(T*& pUnk)
-//{
-//	UINT ret = 0;
-//	::IUnknown* pUnknown = nullptr;
-//
-//	if (pUnk == nullptr)
-//	{
-//		return 0;
-//	}
-//
-//	pUnknown = dynamic_cast<::IUnknown*>(pUnk);
-//
-//	if (pUnknown == nullptr)
-//	{
-//		throw InvalidAccessException(L"Is not derived from IUnknown");
-//	}
-//
-//	ret = pUnknown->Release();
-//	pUnknown = nullptr;
-//
-//	return ret;
-//}
+#include <stdexcept>
+#include <limits>
+
+template<typename T>
+UINT SafeRelease(T*& pUnk)
+{
+	UINT ret = 0;
+	::IUnknown* pUnknown = nullptr;
+
+	if (pUnk == nullptr)
+	{
+		return 0;
+	}
+
+	pUnknown = dynamic_cast<::IUnknown*>(pUnk);
+
+	if (pUnknown == nullptr)
+	{
+		//throw std::InvalidAccessException(L"Is not derived from IUnknown");
+		throw std::invalid_argument("Is not derived from IUnknown");
+	}
+
+	ret = pUnknown->Release();
+	pUnknown = nullptr;
+
+	return ret;
+}
 
 class CD2DCore
 {
@@ -39,16 +44,9 @@ private:
 	ID2D1Factory*				m_pD2D1Factory;
 	IDWriteFactory*				m_pDWriteFactory;
 	IWICImagingFactory*			m_pIWICFactory;
-	//IDWriteTextFormat*		m_pDWriteTextFormat;
-	
-	/*HWND						m_hMainWnd;
-	ID2D1HwndRenderTarget*		m_pMainRT;
-	ID2D1Bitmap*				m_pD2DMainBitmap;*/
 
-	/*
-	HWND						m_hToolWnd;
-	ID2D1HwndRenderTarget*		m_pToolRT;
-	ID2D1Bitmap*				m_pD2DToolBitmap;*/
+	IWICBitmap*					m_pIWICBitmap;
+	//IDWriteTextFormat*		m_pDWriteTextFormat;
 
 public:
 	static CD2DCore* GetInst()
@@ -74,11 +72,13 @@ public:
 	HRESULT CreateD2D1Bitmap(const wstring& _wsFileName, ID2D1HwndRenderTarget* _pRenderTarget, ID2D1Bitmap** _pD2D1Bitmap);
 	//IDWriteTextFormat** CreateMyTextFormat(const WCHAR* _fontName, FLOAT _fontSize);
 
+	IWICBitmap** GetWICBitmap() { return &m_pIWICBitmap; }
+
 public:
 	void Test()
 	{
 		// 1. IWICImagingFactory 개체를 만들어 WIC(Windows Imaging Component) 개체를 만듭니다.
-		// (구현부에 존재)
+		// (D2DCore->Init()에서 이미 존재)
 
 		// 2. CreateDecoderFromFilename 메서드를 사용하여 이미지 파일에서 IWICBitmapDecoder를 만든다
 		HRESULT hr = S_OK;
@@ -88,7 +88,7 @@ public:
 
 		// Make "Decoder" from "Image File"
 		hr = m_pIWICFactory->CreateDecoderFromFilename(
-			L"woman.png",					// Image to be decoded
+			L"images\\woman.png",					// Image to be decoded
 			NULL,							// Do not prefer a particular vendor
 			GENERIC_READ,					// Desired read access to the file
 			WICDecodeMetadataCacheOnDemand,	// Cache metadata when needed
@@ -104,8 +104,8 @@ public:
 		IWICBitmap* pIBitmap = NULL;
 		IWICBitmapLock* pILock = NULL;
 
-		UINT uiWidth = 10;
-		UINT uiHeight = 10;
+		int uiWidth = 10;
+		int uiHeight = 10;
 
 		WICRect rcLock = { 0, 0, uiWidth, uiHeight };
 
@@ -149,13 +149,15 @@ public:
 		}
 
 		// 7. 만든 개체를 정리합니다.
-		pIBitmap->Release();
+		::SafeRelease(pIBitmap);
+		::SafeRelease(pIDecoder);
+		::SafeRelease(pIDecoderFrame);
+		/*pIBitmap->Release();
 		pIDecoder->Release();
-		pIDecoderFrame->Release();
-		/*SafeRelease(pIBitmap);
-		SafeRelease(pIDecoder);
-		SafeRelease(pIDecoderFrame);*/
+		pIDecoderFrame->Release();*/
 	}
+
+	HRESULT CreateD2D1BitampFromWICBitmap(ID2D1HwndRenderTarget* _pRT, IWICBitmap* _iWICBitmap, ID2D1Bitmap** _iD2D1bitmap);
 
 	/*HWND GetMainHwnd() { return m_hMainWnd; }
 	ID2D1HwndRenderTarget* GetMainRT() { return m_pMainRT; }

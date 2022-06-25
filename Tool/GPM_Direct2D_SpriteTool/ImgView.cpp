@@ -1,5 +1,13 @@
 #include "ImgView.h"
 
+CImgView::CImgView()
+{
+}
+
+CImgView::~CImgView()
+{
+}
+
 LRESULT CImgView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
 {
 	PAINTSTRUCT ps;

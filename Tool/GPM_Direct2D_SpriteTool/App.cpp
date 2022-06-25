@@ -20,6 +20,9 @@ HRESULT CApp::Init(HINSTANCE _hInstance, int _nCmdShow)
 {
 	CreateWindows(_hInstance, _nCmdShow);
 	
+	// Create WIC Bitmap
+
+
 	return S_OK;
 }
 
@@ -35,7 +38,7 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 		return E_FAIL;
 	m_arrWnds[(UINT)WND_TYPE::Tool]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->InitTarget();
-	m_arrWnds[(UINT)WND_TYPE::Tool]->InitBitmap(wsFilePath + L"midnight.png");
+	m_arrWnds[(UINT)WND_TYPE::Tool]->InitBitmap(wsFilePath + L"cookie.png");
 	m_arrWnds[(UINT)WND_TYPE::Tool]->Adjust(
 		POINT{ 1000, 700 },
 		POINT{ 100, 100 }

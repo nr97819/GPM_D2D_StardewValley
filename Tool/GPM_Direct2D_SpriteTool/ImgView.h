@@ -4,8 +4,11 @@
 
 class CImgView : public CWnd
 {
-private:
+public:
+	CImgView();
+	~CImgView();
 
+private:
 
 public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
