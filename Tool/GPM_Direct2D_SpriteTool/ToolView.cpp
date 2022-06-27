@@ -47,8 +47,8 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		// 마우스 위치의 pixel값 스포이드
 		//COLORREF color = GetPixel(hdc, x, y);
 		ID2D1Bitmap* d2d1_temp = *(m_pMyBitmap->GetD2DBitmap());
-		UINT width = d2d1_temp->GetSize().width;
-		UINT height = d2d1_temp->GetSize().height;
+		UINT width = (UINT)d2d1_temp->GetSize().width;
+		UINT height = (UINT)d2d1_temp->GetSize().height;
 
 		DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
 
@@ -57,17 +57,19 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		m_alphaZeroColor = hex_color;
 
 
-		BYTE a_value = (hex_color & 0xff000000) >> (8 * 3);
-		BYTE r_value = (hex_color & 0x00ff0000) >> (8 * 2);
-		BYTE g_value = (hex_color & 0x0000ff00) >> (8 * 1);
-		BYTE b_value = (hex_color & 0x000000ff) >> (8 * 0);
+		BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
+		BYTE r_value = static_cast<BYTE>((hex_color & 0x00ff0000) >> (8 * 2));
+		BYTE g_value = static_cast<BYTE>((hex_color & 0x0000ff00) >> (8 * 1));
+		BYTE b_value = static_cast<BYTE>((hex_color & 0x000000ff) >> (8 * 0));
 		hex_color = (hex_color | b_value) << (8);
 		hex_color = (hex_color | g_value) << (8);
 		hex_color = (hex_color | r_value) << (8);
 		hex_color = (hex_color | a_value);
 
-		wsprintf(str, L"(%.3d, %.3d) COLOR : %.8x", x, y, hex_color);
+		wsprintf(str, L"Mouse Pos : (%.3d, %.3d)", x, y);
 		TextOut(hdc, 10, 10, str, wcslen(str));
+		wsprintf(str, L"RGB Value : %.8x", hex_color);
+		TextOut(hdc, 10, 30, str, wcslen(str));
 
 		HPEN hNewPen = CreatePen(PS_SOLID, 1, RGB(0xff, 0xff, 0xff));
 		HPEN hOldPen = (HPEN)SelectObject(hdc, hNewPen);
@@ -153,8 +155,8 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		m_bIsLButtonDown = false;
 
 		ID2D1Bitmap* d2d1_temp = *(m_pMyBitmap->GetD2DBitmap());
-		UINT width = d2d1_temp->GetSize().width;
-		UINT height = d2d1_temp->GetSize().height;
+		UINT width = (UINT)d2d1_temp->GetSize().width;
+		UINT height = (UINT)d2d1_temp->GetSize().height;
 
 		WORD pos_X = LOWORD(_lParam);
 		WORD pos_Y = HIWORD(_lParam);
@@ -166,60 +168,50 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		{
 			srp._ptDragLeftTop = { ptTempLT.x, ptTempLT.y };
 			srp._ptDragRightBottom = { ptTempRB.x, ptTempRB.y };
-			//m_vSlicePos.push_back(srp);
-			m_vSlicePos.push_back(srp);
+
+			LONG max_X = 0L;			// LeftTop.x
+			LONG max_Y = 0L;			// LeftTop.y
+			LONG min_X = LONG_MAX;		// RightBottom.x
+			LONG min_Y = LONG_MAX;		// RightBottom.y
+			bool bPassed = false;
+
+			for (LONG y = ptTempLT.y; y < ptTempRB.y; ++y)
+			{
+				for (LONG x = ptTempLT.x; x < ptTempRB.x; ++x)
+				{
+					DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
+					BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
+
+					if (alpha_value != 0xff)
+						continue;
+
+					if (x < 0 || y < 0) //  || x > width || y > height
+						continue;
+
+					if (x > max_X && x <= ptTempRB.x)
+						max_X = x;
+
+					if (y > max_Y && y <= ptTempRB.y)
+						max_Y = y;
+
+					if (x < min_X && x >= ptTempLT.x)
+						min_X = x;
+
+					if (y < min_Y && y >= ptTempLT.y)
+						min_Y = y;
+
+					bPassed = true;
+				}
+			}
+
+			if (bPassed)
+			{
+				srp._ptDragLeftTop = { min_X, min_Y };
+				srp._ptDragRightBottom = { max_X, max_Y };
+
+				m_vSlicePos.push_back(srp);
+			}
 		}
-
-		//if (m_bDragSliceState)
-		//{
-		//	UINT max_X = 0;
-		//	UINT max_Y = 0;
-		//	UINT min_X = INFINITE;
-		//	UINT min_Y = INFINITE;
-
-		//	for (UINT y = ptTempLT.y; y < ptTempRB.y; ++y)
-		//	{
-		//		for (UINT x = ptTempLT.x; x < ptTempRB.x; ++x)
-		//		{
-		//			DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
-		//			BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
-
-		//			if (alpha_value != 0xff)
-		//				break;
-
-		//			if (x < 0 || y < 0) //  || x > width || y > height
-		//				break;
-
-		//			if (x >= ptTempLT.x && y >= ptTempLT.y && x <= ptTempRB.x && y <= ptTempRB.y)
-		//			{
-		//				if (x > max_X)
-		//					max_X = x;
-
-		//				if (y > max_Y)
-		//					max_Y = y;
-
-		//				if (x < min_X)
-		//					min_X = x;
-
-		//				if (y < min_Y)
-		//					min_Y = y;
-		//			}
-		//		}
-		//	}
-
-		//	ptTempLT.x = min_X;
-		//	ptTempLT.y = min_Y;
-
-		//	ptTempRB.x = max_X;
-		//	ptTempRB.y = max_Y;
-
-		//	srp._ptDragLeftTop = { ptTempLT.x, ptTempLT.y };
-		//	srp._ptDragRightBottom = { ptTempRB.x, ptTempRB.y };
-		//	m_vSlicePos.push_back(srp);
-		//}
-
-		/*ptTempLT = { 0, 0 };
-		ptTempRB = { 0, 0 };*/
 	}
 	break;
 

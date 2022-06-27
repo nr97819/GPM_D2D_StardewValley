@@ -7,6 +7,12 @@
 
 #include "WICBitmap.h"
 
+struct SLICE_RECT_POS
+{
+	POINT _ptDragLeftTop = {};
+	POINT _ptDragRightBottom = {};
+};
+
 typedef LRESULT (CALLBACK *PROC_FPTR)(HWND, UINT, WPARAM, LPARAM);
 typedef LRESULT (*PROC_MSG_FPTR)(HWND, UINT, WPARAM, LPARAM);
 
@@ -45,7 +51,7 @@ public:
 
 public:
 	void Update();
-	void Render();
+	virtual void Render();
 
 public:
 	void Release();

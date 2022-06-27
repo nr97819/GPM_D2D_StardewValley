@@ -9,6 +9,7 @@ enum class WND_TYPE
 {
 	Tool,
 	Img,
+	Sprite,
 
 	LAST_INDEX
 };
@@ -28,7 +29,12 @@ public:
 	HRESULT Init(HINSTANCE _hInstance, int _nCmdShow);
 	HRESULT CreateWindows(HINSTANCE _hInstance, int _nCmdShow);
 
+	// CreateNewWindow()
+
 public:
 	int Run();
 	void Release();
+
+public:
+	CWnd* GetToolWnd() { return m_arrWnds[(UINT)WND_TYPE::Tool]; }
 };

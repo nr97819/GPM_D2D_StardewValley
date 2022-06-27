@@ -153,7 +153,7 @@ LRESULT CALLBACK CWnd::WndProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM
 void CWnd::Update()
 {
 	// TEST (사용 안함)
-	CD2DCore::GetInst()->Test();
+	//CD2DCore::GetInst()->Test();
 }
 
 void CWnd::Render()
@@ -165,7 +165,8 @@ void CWnd::Render()
 	D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
 
 	// clear
-	pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+	pRenderTarget->Clear(D2D1::ColorF(0xff00ff)); // violet
+	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
 	pRenderTarget->DrawBitmap(
 		pD2DBitmap,

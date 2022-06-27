@@ -43,6 +43,9 @@
     <ClCompile Include="WICBitmap.cpp">
       <Filter>소스 파일\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="SpriteView.cpp">
+      <Filter>소스 파일\Engine\Wnd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2DCore.h">
@@ -66,6 +69,9 @@
     </ClInclude>
     <ClInclude Include="WICBitmap.h">
       <Filter>소스 파일\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteView.h">
+      <Filter>소스 파일\Engine\Wnd</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

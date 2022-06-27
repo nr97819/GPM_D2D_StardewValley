@@ -4,12 +4,6 @@
 
 #include <vector>
 
-struct SLICE_RECT_POS
-{
-	POINT _ptDragLeftTop = {};
-	POINT _ptDragRightBottom = {};
-};
-
 class CToolView : public CWnd
 {
 private:
@@ -31,6 +25,8 @@ public:
 	~CToolView();
 
 public:
-	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
+	std::vector<SLICE_RECT_POS>* GetSlicedPos() { return &m_vSlicePos; }
 
+public:
+	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
 };

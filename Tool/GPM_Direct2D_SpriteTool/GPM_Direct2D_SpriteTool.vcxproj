@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="ImgView.cpp" />
+    <ClCompile Include="SpriteView.cpp" />
     <ClCompile Include="ToolView.cpp" />
     <ClCompile Include="D2DCore.cpp" />
     <ClCompile Include="App.cpp" />
@@ -151,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="ImgView.h" />
+    <ClInclude Include="SpriteView.h" />
     <ClInclude Include="ToolView.h" />
     <ClInclude Include="D2DCore.h" />
     <ClInclude Include="App.h" />

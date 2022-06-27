@@ -41,8 +41,10 @@ LRESULT CImgView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _
 
 		COLORREF color = GetPixel(hdc, x, y);
 		wchar_t str[100];
-		wsprintf(str, L"(%d, %d) COLOR : %x", x, y, color);
+		wsprintf(str, L"Mouse Pos : (%.3d, %.3d)", x, y);
 		TextOut(hdc, 10, 10, str, wcslen(str));
+		wsprintf(str, L"RGB Value : %.8x", color);
+		TextOut(hdc, 10, 30, str, wcslen(str));
 
 		ReleaseDC(_hWnd, hdc);
 	}
