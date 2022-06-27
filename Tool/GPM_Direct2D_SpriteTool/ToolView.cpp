@@ -8,6 +8,8 @@ CToolView::CToolView()
 	, m_bDragSliceState(false)
 
 	, m_bIsLButtonDown(false)
+
+	, m_bIsInvalidSlicedRect(false)
 {
 }
 
@@ -152,6 +154,7 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 	case WM_LBUTTONUP:
 	{
+		m_bIsInvalidSlicedRect = false;
 		m_bIsLButtonDown = false;
 
 		ID2D1Bitmap* d2d1_temp = *(m_pMyBitmap->GetD2DBitmap());
@@ -175,9 +178,67 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 			LONG min_Y = LONG_MAX;		// RightBottom.y
 			bool bPassed = false;
 
-			for (LONG y = ptTempLT.y; y < ptTempRB.y; ++y)
+			// 220627 sprite 중간에 사각형 쳐지는 문제 해결
+			for (LONG y = ptTempLT.y; y <= ptTempRB.y; ++y)
 			{
-				for (LONG x = ptTempLT.x; x < ptTempRB.x; ++x)
+				LONG x = ptTempLT.x;
+
+				DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
+				BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
+
+				if (alpha_value == 0xff)
+					break;
+			}
+
+			for (LONG y = ptTempLT.y; y <= ptTempRB.y; ++y)
+			{
+				LONG x = ptTempRB.x;
+
+				DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
+				BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
+
+				if (alpha_value == 0xff)
+				{
+					m_bIsInvalidSlicedRect = true;
+					break;
+				}
+			}
+
+			for (LONG x = ptTempLT.x; x <= ptTempRB.x; ++x)
+			{
+				LONG y = ptTempLT.y;
+
+				DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
+				BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
+
+				if (alpha_value == 0xff)
+				{
+					m_bIsInvalidSlicedRect = true;
+					break;
+				}
+			}
+
+			for (LONG x = ptTempLT.x; x <= ptTempRB.x; ++x)
+			{
+				LONG y = ptTempRB.y;
+
+				DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
+				BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
+
+				if (alpha_value == 0xff)
+				{
+					m_bIsInvalidSlicedRect = true;
+					break;
+				}
+			}
+
+			// Drag Slice 버그 방지용
+			if (m_bIsInvalidSlicedRect)
+				break;
+
+			for (LONG y = ptTempLT.y + 1; y < ptTempRB.y; ++y)
+			{
+				for (LONG x = ptTempLT.x + 1; x < ptTempRB.x; ++x)
 				{
 					DWORD hex_color = m_pMyWICBitmap->GetPixelColor(x, y, width, height);
 					BYTE alpha_value = (hex_color & 0xff000000) >> (8 * 3);
@@ -206,8 +267,8 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 			if (bPassed)
 			{
-				srp._ptDragLeftTop = { min_X, min_Y };
-				srp._ptDragRightBottom = { max_X, max_Y };
+				srp._ptDragLeftTop = { min_X - 1, min_Y - 1 };
+				srp._ptDragRightBottom = { max_X + 1, max_Y + 1 };
 
 				m_vSlicePos.push_back(srp);
 			}

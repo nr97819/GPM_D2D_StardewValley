@@ -25,34 +25,34 @@ HRESULT CApp::Init(HINSTANCE _hInstance, int _nCmdShow)
 	
 	
 
-	//// Creaate New Window (런타임에 새 윈도우 창 생성)
-	//HWND tempHWnd = NULL;
-	//wstring wsFilePath = L"images\\";
+	// Creaate New Window (런타임에 새 윈도우 창 생성)
+	HWND tempHWnd = NULL;
+	wstring wsFilePath = L"images\\";
 
-	//m_arrWnds[(UINT)WND_TYPE::Sprite] = new CSpriteView();
-
-
-
-	//CBitmap* pMyBitmap_temp = m_arrWnds[(UINT)WND_TYPE::Tool]->GetMyBitmap();
-	//CToolView* pToolView_temp = (CToolView*)(m_arrWnds[(UINT)WND_TYPE::Tool]);
-	//std::vector<SLICE_RECT_POS>* pVecSlicedPos_temp = pToolView_temp->GetSlicedPos();
-	//static_cast<CSpriteView*>(m_arrWnds[(UINT)WND_TYPE::Sprite])->InitResource(pMyBitmap_temp, pVecSlicedPos_temp);
+	m_arrWnds[(UINT)WND_TYPE::Sprite] = new CSpriteView();
 
 
 
-	//tempHWnd = m_arrWnds[(UINT)WND_TYPE::Sprite]->Create(_hInstance, _nCmdShow, L"SpriteApp", L"Sprite Window App", CWnd::WndProc, true); // Show Window 분리 필요
-	//if (NULL == tempHWnd)
-	//	return E_FAIL;
-	//m_arrWnds[(UINT)WND_TYPE::Sprite]->_ShowWindow();
-
-	//m_arrWnds[(UINT)WND_TYPE::Sprite]->InitTarget();
-	//m_arrWnds[(UINT)WND_TYPE::Sprite]->InitBitmap(wsFilePath + L"cookie.png");
+	CBitmap* pMyBitmap_temp = m_arrWnds[(UINT)WND_TYPE::Tool]->GetMyBitmap();
+	CToolView* pToolView_temp = (CToolView*)(m_arrWnds[(UINT)WND_TYPE::Tool]);
+	std::vector<SLICE_RECT_POS>* pVecSlicedPos_temp = pToolView_temp->GetSlicedPos();
+	static_cast<CSpriteView*>(m_arrWnds[(UINT)WND_TYPE::Sprite])->InitResource(pMyBitmap_temp, pVecSlicedPos_temp);
 
 
-	//m_arrWnds[(UINT)WND_TYPE::Sprite]->Adjust(
-	//	POINT{ 600, 300 },
-	//	POINT{ 200, 100 }
-	//);
+
+	tempHWnd = m_arrWnds[(UINT)WND_TYPE::Sprite]->Create(_hInstance, _nCmdShow, L"SpriteApp", L"Sprite Window App", CWnd::WndProc, true); // Show Window 분리 필요
+	if (NULL == tempHWnd)
+		return E_FAIL;
+	m_arrWnds[(UINT)WND_TYPE::Sprite]->_ShowWindow();
+
+	m_arrWnds[(UINT)WND_TYPE::Sprite]->InitTarget();
+	m_arrWnds[(UINT)WND_TYPE::Sprite]->InitBitmap(wsFilePath + L"cookie.png");
+
+
+	m_arrWnds[(UINT)WND_TYPE::Sprite]->Adjust(
+		POINT{ 600, 300 },
+		POINT{ 200, 100 }
+	);
 
 
 	// Create WIC Bitmap

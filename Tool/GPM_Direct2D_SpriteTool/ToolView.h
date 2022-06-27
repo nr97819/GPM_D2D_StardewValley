@@ -12,6 +12,9 @@ private:
 
 	bool m_bIsLButtonDown;
 
+	// Drag Slice 버그 방지용
+	bool m_bIsInvalidSlicedRect;
+
 	POINT ptTempLT = {};
 	POINT ptTempRB = {};
 
