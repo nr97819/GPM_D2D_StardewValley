@@ -5,6 +5,7 @@
 
 CSpriteView::CSpriteView()
 	: m_pMyBitmap(nullptr)
+	, m_slicedSpritesVec(nullptr)
 {
 }
 

@@ -233,7 +233,7 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 			}
 
 			// Drag Slice 버그 방지용
-			if (m_bIsInvalidSlicedRect)
+			if (m_bIsInvalidSlicedRect) // Drag Slice 상태가 해제되지 않는다. (밑에서 false 되기 전 탈출)
 				break;
 
 			for (LONG y = ptTempLT.y + 1; y < ptTempRB.y; ++y)
@@ -249,16 +249,16 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 					if (x < 0 || y < 0) //  || x > width || y > height
 						continue;
 
-					if (x > max_X && x <= ptTempRB.x)
+					if (x > max_X && x < ptTempRB.x)
 						max_X = x;
 
-					if (y > max_Y && y <= ptTempRB.y)
+					if (y > max_Y && y < ptTempRB.y)
 						max_Y = y;
 
-					if (x < min_X && x >= ptTempLT.x)
+					if (x < min_X && x > ptTempLT.x)
 						min_X = x;
 
-					if (y < min_Y && y >= ptTempLT.y)
+					if (y < min_Y && y > ptTempLT.y)
 						min_Y = y;
 
 					bPassed = true;
@@ -268,11 +268,14 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 			if (bPassed)
 			{
 				srp._ptDragLeftTop = { min_X - 1, min_Y - 1 };
-				srp._ptDragRightBottom = { max_X + 1, max_Y + 1 };
+				srp._ptDragRightBottom = { max_X + 3, max_Y + 3 };
 
 				m_vSlicePos.push_back(srp);
 			}
 		}
+
+		m_bDragSliceState = false;
+		// 추후 수정 필요!
 	}
 	break;
 

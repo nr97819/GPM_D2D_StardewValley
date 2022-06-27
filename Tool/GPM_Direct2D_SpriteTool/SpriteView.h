@@ -10,8 +10,8 @@ class CSpriteView : public CWnd
 private:
 
 private:
-	CBitmap* m_pMyBitmap;
-	std::vector<SLICE_RECT_POS>* m_slicedSpritesVec;
+	CBitmap*						m_pMyBitmap;
+	std::vector<SLICE_RECT_POS>*	m_slicedSpritesVec;
 
 public:
 	CSpriteView();

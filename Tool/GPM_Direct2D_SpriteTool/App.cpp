@@ -33,8 +33,8 @@ HRESULT CApp::Init(HINSTANCE _hInstance, int _nCmdShow)
 
 
 
-	CBitmap* pMyBitmap_temp = m_arrWnds[(UINT)WND_TYPE::Tool]->GetMyBitmap();
 	CToolView* pToolView_temp = (CToolView*)(m_arrWnds[(UINT)WND_TYPE::Tool]);
+	CBitmap* pMyBitmap_temp = pToolView_temp->GetMyBitmap();
 	std::vector<SLICE_RECT_POS>* pVecSlicedPos_temp = pToolView_temp->GetSlicedPos();
 	static_cast<CSpriteView*>(m_arrWnds[(UINT)WND_TYPE::Sprite])->InitResource(pMyBitmap_temp, pVecSlicedPos_temp);
 
