@@ -30,6 +30,8 @@ HRESULT CD2DCore::InitFactory()
 {
 	HRESULT hr = S_OK;
 
+	CoInitialize(NULL);
+
 	// Factory 1
 	hr = CoCreateInstance(
 		CLSID_WICImagingFactory,

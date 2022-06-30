@@ -118,7 +118,7 @@ HRESULT CWnd::InitBitmap(const wstring& _wsImageFileName)
 
 void CWnd::_ShowWindow()
 {
-	ShowWindow(m_hWnd, m_nCmdShow);
+	ShowWindow(m_hWnd, m_nCmdShow); // 창이 생성된 직후에 : WM_PAINT를 최초 1회 message를 거치지 않고 바로 호출
 	UpdateWindow(m_hWnd);
 }
 
@@ -165,7 +165,7 @@ void CWnd::Render()
 	D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
 
 	// clear
-	pRenderTarget->Clear(D2D1::ColorF(0xff00ff)); // violet
+	pRenderTarget->Clear(D2D1::ColorF(0x660066)); // violet
 	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
 	pRenderTarget->DrawBitmap(

@@ -20,11 +20,8 @@ CApp::~CApp()
 HRESULT CApp::Init(HINSTANCE _hInstance, int _nCmdShow)
 {
 
-
 	CreateWindows(_hInstance, _nCmdShow);
 	
-	
-
 	// Creaate New Window (런타임에 새 윈도우 창 생성)
 	HWND tempHWnd = NULL;
 	wstring wsFilePath = L"images\\";
@@ -71,9 +68,9 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 	tempHWnd = m_arrWnds[(UINT)WND_TYPE::Tool]->Create(_hInstance, _nCmdShow, L"MainApp", L"Main Window App", CWnd::WndProc, true); // Show Window 분리 필요
 	if (NULL == tempHWnd)
 		return E_FAIL;
-	m_arrWnds[(UINT)WND_TYPE::Tool]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->InitTarget();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->InitBitmap(wsFilePath + L"woman.png");
+	m_arrWnds[(UINT)WND_TYPE::Tool]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->Adjust(
 		POINT{ 1000, 700 },
 		POINT{ 100, 100 }
@@ -84,9 +81,9 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 	tempHWnd = m_arrWnds[(UINT)WND_TYPE::Img]->Create(_hInstance, _nCmdShow, L"ToolApp", L"Tool Window App", CWnd::WndProc, false);
 	if (NULL == tempHWnd)
 		return E_FAIL;
-	m_arrWnds[(UINT)WND_TYPE::Img]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Img]->InitTarget();
 	m_arrWnds[(UINT)WND_TYPE::Img]->InitBitmap(wsFilePath + L"woman.png");
+	m_arrWnds[(UINT)WND_TYPE::Img]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Img]->Adjust(
 		POINT{ 300, 700 }, 
 		POINT{ ((int)m_arrWnds[(UINT)WND_TYPE::Tool]->GetRT()->GetSize().width + 100), 100 } // 옆에 고정

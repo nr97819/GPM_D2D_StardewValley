@@ -29,14 +29,19 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 	case WM_PAINT:
 		hdc = BeginPaint(_hWnd, &ps);
+
+		// D2D1
+		Update();
+		Render();
+
 		EndPaint(_hWnd, &ps);
 		break;
 
 	case WM_MOUSEMOVE:
 	{
 		// D2D1
-		Update();
-		Render();
+//		Update();
+//		Render();
 
 		// =====================================================================
 
@@ -123,6 +128,9 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		// ==========================================================
 
 		ReleaseDC(_hWnd, hdc);
+
+
+
 	}
 	break;
 
