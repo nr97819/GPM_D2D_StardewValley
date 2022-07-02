@@ -69,12 +69,15 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 	if (NULL == tempHWnd)
 		return E_FAIL;
 	m_arrWnds[(UINT)WND_TYPE::Tool]->InitTarget();
+	m_arrWnds[(UINT)WND_TYPE::Tool]->InitRedBursh();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->InitBitmap(wsFilePath + L"woman.png");
 	m_arrWnds[(UINT)WND_TYPE::Tool]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Tool]->Adjust(
 		POINT{ 1000, 700 },
 		POINT{ 100, 100 }
 	);
+
+
 
 	// [ Tool ]
 	m_arrWnds[(UINT)WND_TYPE::Img] = new CImgView();

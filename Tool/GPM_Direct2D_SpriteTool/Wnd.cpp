@@ -10,6 +10,9 @@ CWnd::CWnd()
 
 	, m_pMyBitmap(nullptr)
 	, m_pMyWICBitmap(nullptr)
+
+	// Back RT
+	/*, m_pBack_RenderTarget(nullptr)*/
 {
 }
 
@@ -96,8 +99,14 @@ HRESULT CWnd::InitTarget()
 	HRESULT hr = S_OK;
 
 	hr = CD2DCore::GetInst()->InitFactory();
+
+	// ============= Front RT =============
 	hr = CD2DCore::GetInst()->InitRenderTarget(m_hWnd, &m_pRenderTarget);
 	if (FAILED(hr)) return E_FAIL;
+
+	// =============  Back RT =============
+	/*hr = CD2DCore::GetInst()->InitRenderTarget(m_hWnd, &m_pBack_RenderTarget);
+	if (FAILED(hr)) return E_FAIL;*/
 
 	return S_OK;
 }
@@ -106,12 +115,21 @@ HRESULT CWnd::InitBitmap(const wstring& _wsImageFileName)
 {
 	HRESULT hr = S_OK;
 
+	// ============= Front RT =============
 	m_pMyBitmap = new CBitmap();
 	hr = m_pMyBitmap->Create(_wsImageFileName, m_pRenderTarget);
 
 	m_pMyWICBitmap = new CWICBitmap();
 	hr = m_pMyWICBitmap->Create(_wsImageFileName, m_pRenderTarget);
 	if (FAILED(hr)) return E_FAIL;
+
+	// =============  Back RT =============
+	/*m_pBack_MyBitmap = new CBitmap();
+	hr = m_pBack_MyBitmap->Create(_wsImageFileName, m_pBack_RenderTarget);
+
+	m_pBack_MyWICBitmap = new CWICBitmap();
+	hr = m_pBack_MyWICBitmap->Create(_wsImageFileName, m_pBack_RenderTarget);
+	if (FAILED(hr)) return E_FAIL;*/
 
 	return S_OK;
 }
@@ -152,23 +170,23 @@ LRESULT CALLBACK CWnd::WndProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM
 
 void CWnd::Update()
 {
-	// TEST (사용 안함)
 	//CD2DCore::GetInst()->Test();
 }
 
 void CWnd::Render()
 {
-	ID2D1HwndRenderTarget* pRenderTarget = GetRT();
+	ID2D1HwndRenderTarget* pRT = GetRT();
 	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());
+	//ID2D1HwndRenderTarget* p_Back_RT = GetRT();
 
-	pRenderTarget->BeginDraw();
-	D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
+	pRT->BeginDraw();
+	D2D1_SIZE_F rtSize = pRT->GetSize();
 
 	// clear
-	pRenderTarget->Clear(D2D1::ColorF(0x660066)); // violet
+	pRT->Clear(D2D1::ColorF(0xff00ff)); // violet
 	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-	pRenderTarget->DrawBitmap(
+	pRT->DrawBitmap(
 		pD2DBitmap,
 		D2D1::RectF(
 			0.f, 0.f,
@@ -183,11 +201,13 @@ void CWnd::Render()
 			pD2DBitmap->GetSize().height
 		)
 	);
-	pRenderTarget->EndDraw();
+
+	pRT->EndDraw();
 }
 
 void CWnd::Release()
 {
+	// ============= Front RT =============
 	if (m_pMyBitmap) { 
 		m_pMyBitmap->Release();
 		delete m_pMyBitmap;
@@ -196,7 +216,32 @@ void CWnd::Release()
 
 	if (m_pRenderTarget) { 
 		m_pRenderTarget->Release();
-		//delete m_pRenderTarget; // RenderTarget은 Window측에서 직접 delete해주는 것이다.
+		// delete m_pRenderTarget; // RenderTarget은 Window측에서 직접 delete해주는 것이다.
 		m_pRenderTarget = nullptr;
 	}
+
+	if (m_pMyWICBitmap) {
+		m_pMyWICBitmap->Release();
+		delete m_pMyWICBitmap;
+		m_pMyWICBitmap = nullptr;
+	}
+
+	// ============= Back RT =============
+	//if (m_pBack_MyBitmap) {
+	//	m_pBack_MyBitmap->Release();
+	//	delete m_pBack_MyBitmap;
+	//	m_pBack_MyBitmap = nullptr;
+	//}
+
+	//if (m_pBack_RenderTarget) {
+	//	m_pBack_RenderTarget->Release();
+	//	// delete m_pRenderTarget; // RenderTarget은 Window측에서 직접 delete해주는 것이다.
+	//	m_pBack_RenderTarget = nullptr;
+	//}
+
+	//if (m_pBack_MyWICBitmap) {
+	//	m_pBack_MyWICBitmap->Release();
+	//	delete m_pBack_MyWICBitmap;
+	//	m_pBack_MyWICBitmap = nullptr;
+	//}
 }

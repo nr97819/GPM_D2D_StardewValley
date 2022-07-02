@@ -67,6 +67,12 @@ BEGIN
     BEGIN
         MENUITEM "Set Alpha Zero",              ID_COLOR_SETALPHAZERO
     END
+    POPUP "RadioButton"
+    BEGIN
+        MENUITEM "RadioTest1",                  ID_RADIOBUTTON_RADIOTEST1
+        MENUITEM "RadioTest2",                  ID_RADIOBUTTON_RADIOTEST2
+        MENUITEM "RadioTest3",                  ID_RADIOBUTTON_RADIOTEST3
+    END
 END
 
 #endif    // 한국어(대한민국) resources

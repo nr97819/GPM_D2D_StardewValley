@@ -26,10 +26,18 @@ protected:
 	wstring					m_wTitleName = {};
 
 	HWND					m_hWnd;
-	ID2D1HwndRenderTarget*	m_pRenderTarget;
 
+	// Front RT
+	ID2D1HwndRenderTarget*	m_pRenderTarget;
 	CBitmap*				m_pMyBitmap;
 	CWICBitmap*				m_pMyWICBitmap;
+
+	// Back RT
+	/*ID2D1HwndRenderTarget*	m_pBack_RenderTarget;
+	CBitmap*				m_pBack_MyBitmap;
+	CWICBitmap*				m_pBack_MyWICBitmap;*/
+
+	ID2D1SolidColorBrush*	m_pD2D1RedBrush = NULL;
 
 public:
 	CWnd();
@@ -42,6 +50,13 @@ public:
 	HRESULT InitBitmap(const wstring& _wsImageFileName);
 	void _ShowWindow();
 	void Adjust(const POINT& _ptResolution, const POINT& _ptPos);
+
+	void InitRedBursh()
+	{
+		m_pRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF(1.0f, 0.0f, 0.0f, 1.0f)),
+			&m_pD2D1RedBrush);
+	}
 
 public:
 	static LRESULT CALLBACK WndProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam);
@@ -58,7 +73,8 @@ public:
 
 public:
 	CBitmap* GetMyBitmap() { return m_pMyBitmap; }
-	ID2D1HwndRenderTarget* GetRT() { return m_pRenderTarget; }
 	HWND GetHwnd() { return m_hWnd; }
+	ID2D1HwndRenderTarget* GetRT() { return m_pRenderTarget; }
+	//ID2D1HwndRenderTarget* GetBackRT() { return m_pBack_RenderTarget; }
 };
 
