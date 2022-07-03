@@ -2,6 +2,8 @@
 
 #include "D2DCore.h"
 
+std::vector<SLICE_RECT_POS> CWnd::m_vSlicedPos = {};
+
 CWnd::CWnd()
 	: m_pRenderTarget(nullptr)
 	, m_hWnd(nullptr)
@@ -173,37 +175,37 @@ void CWnd::Update()
 	//CD2DCore::GetInst()->Test();
 }
 
-void CWnd::Render()
-{
-	ID2D1HwndRenderTarget* pRT = GetRT();
-	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());
-	//ID2D1HwndRenderTarget* p_Back_RT = GetRT();
-
-	pRT->BeginDraw();
-	D2D1_SIZE_F rtSize = pRT->GetSize();
-
-	// clear
-	pRT->Clear(D2D1::ColorF(0xff00ff)); // violet
-	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-	pRT->DrawBitmap(
-		pD2DBitmap,
-		D2D1::RectF(
-			0.f, 0.f,
-			0.f + pD2DBitmap->GetSize().width,
-			0.f + pD2DBitmap->GetSize().height
-		),
-		1.0f, // Alpha °ª
-		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-		D2D1::RectF(
-			0.f, 0.f,
-			pD2DBitmap->GetSize().width,
-			pD2DBitmap->GetSize().height
-		)
-	);
-
-	pRT->EndDraw();
-}
+//void CWnd::Render()
+//{
+//	ID2D1HwndRenderTarget* pRT = GetRT();
+//	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());
+//	//ID2D1HwndRenderTarget* p_Back_RT = GetRT();
+//
+//	pRT->BeginDraw();
+//	D2D1_SIZE_F rtSize = pRT->GetSize();
+//
+//	// clear
+//	pRT->Clear(D2D1::ColorF(0xff00ff)); // violet
+//	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+//
+//	pRT->DrawBitmap(
+//		pD2DBitmap,
+//		D2D1::RectF(
+//			0.f, 0.f,
+//			0.f + pD2DBitmap->GetSize().width,
+//			0.f + pD2DBitmap->GetSize().height
+//		),
+//		1.0f, // Alpha °ª
+//		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+//		D2D1::RectF(
+//			0.f, 0.f,
+//			pD2DBitmap->GetSize().width,
+//			pD2DBitmap->GetSize().height
+//		)
+//	);
+//
+//	pRT->EndDraw();
+//}
 
 void CWnd::Release()
 {

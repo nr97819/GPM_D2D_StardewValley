@@ -7,9 +7,9 @@
 
 enum class WND_TYPE
 {
-	Tool,
-	Img,
+	Main,
 	Sprite,
+	Image,
 
 	LAST_INDEX
 };
@@ -36,5 +36,5 @@ public:
 	void Release();
 
 public:
-	CWnd* GetToolWnd() { return m_arrWnds[(UINT)WND_TYPE::Tool]; }
+	CWnd* GetMainViewHWnd() { return m_arrWnds[(UINT)WND_TYPE::Main]; }
 };

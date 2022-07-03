@@ -18,7 +18,8 @@ public:
 	~CSpriteView();
 
 public:
-	void InitResource(CBitmap* _pMyBitmap, std::vector<SLICE_RECT_POS>* _slicedSpritesVec);
+	//void InitResource(CBitmap* _pMyBitmap, std::vector<SLICE_RECT_POS>* _slicedSpritesVec);
+	virtual void Update() override;
 	virtual void Render() override;
 
 public:

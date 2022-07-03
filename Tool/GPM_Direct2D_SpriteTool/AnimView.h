@@ -2,13 +2,17 @@
 
 #include "Wnd.h"
 
-class CImgView : public CWnd
+class CAnimView : public CWnd
 {
-public:
-	CImgView();
-	~CImgView();
-
 private:
+	// ¸â¹ö º¯¼ö
+
+public:
+	CAnimView();
+	~CAnimView();
+
+public:
+	virtual void Render() override;
 
 public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;

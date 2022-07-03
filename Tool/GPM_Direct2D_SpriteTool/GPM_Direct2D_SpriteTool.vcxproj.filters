@@ -31,10 +31,10 @@
     <ClCompile Include="Bitmap.cpp">
       <Filter>소스 파일\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="ImgView.cpp">
+    <ClCompile Include="AnimView.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClCompile>
-    <ClCompile Include="ToolView.cpp">
+    <ClCompile Include="MainView.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClCompile>
     <ClCompile Include="Wnd.cpp">
@@ -58,10 +58,10 @@
       <Filter>소스 파일\Engine</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h" />
-    <ClInclude Include="ImgView.h">
+    <ClInclude Include="AnimView.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClInclude>
-    <ClInclude Include="ToolView.h">
+    <ClInclude Include="MainView.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClInclude>
     <ClInclude Include="Wnd.h">

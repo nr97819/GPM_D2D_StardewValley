@@ -2,8 +2,6 @@
 
 #include "Wnd.h"
 
-#include <vector>
-
 enum class MENU_RADIO_ITEM
 {
 	RADIOTEST1 = 40008,
@@ -19,7 +17,7 @@ enum class MENU_RADIO_ITEM
 	*/
 };
 
-class CToolView : public CWnd
+class CMainView : public CWnd
 {
 private:
 	bool m_bSetAlphaZeroState;
@@ -36,17 +34,15 @@ private:
 	// ===================== NEW =======================
 	POINT ptCurMousePos = {};
 
-	std::vector<SLICE_RECT_POS> m_vSlicePos{};
-
 private:
 	DWORD m_alphaZeroColor;
 
 public:
-	CToolView();
-	~CToolView();
+	CMainView();
+	~CMainView();
 
 public:
-	std::vector<SLICE_RECT_POS>* GetSlicedPos() { return &m_vSlicePos; }
+	//std::vector<SLICE_RECT_POS>* GetSlicedSprites() { return &m_vSlicePos; }
 
 public:
 	virtual void Render() override;
@@ -54,7 +50,6 @@ public:
 public:
 	// 급하게 추가함
 	void OnCreate();
-
 	void OnMouseMove(LPARAM _lParam);
 	void OnMouseUp(LPARAM _lParam);
 	void OnMouseDown(LPARAM _lParam);

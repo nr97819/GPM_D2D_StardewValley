@@ -1,8 +1,8 @@
-#include "ToolView.h"
+#include "MainView.h"
 
 #include "D2DCore.h"
 
-CToolView::CToolView()
+CMainView::CMainView()
 	: m_alphaZeroColor(0x0)
 	, m_bSetAlphaZeroState(false)
 	, m_bDragSliceState(false)
@@ -13,16 +13,16 @@ CToolView::CToolView()
 {
 }
 
-CToolView::~CToolView()
+CMainView::~CMainView()
 {
 }
 
-void CToolView::OnCreate()
+void CMainView::OnCreate()
 {
 	//this->InitRedBursh();
 }
 
-void CToolView::OnMouseMove(LPARAM _lParam)
+void CMainView::OnMouseMove(LPARAM _lParam)
 {
 	HDC hdc = GetDC(m_hWnd);
 
@@ -52,10 +52,13 @@ void CToolView::OnMouseMove(LPARAM _lParam)
 	hex_color = (hex_color | r_value) << (8);
 	hex_color = (hex_color | a_value);
 
+	//UINT iWndWidth = (UINT)GetRT()->GetSize().width;
+	UINT iWndHeight = (UINT)GetRT()->GetSize().height;
+
 	wsprintf(str, L"Mouse Pos : (%.3d, %.3d)", ptCurMousePos.x, ptCurMousePos.y);
-	TextOut(hdc, 10, 10, str, wcslen(str));
+	TextOut(hdc, 10, iWndHeight - 50, str, wcslen(str));
 	wsprintf(str, L"RGB Value : %.8x", hex_color);
-	TextOut(hdc, 10, 30, str, wcslen(str));
+	TextOut(hdc, 10, iWndHeight - 30, str, wcslen(str));
 
 	HPEN hWhitePen = CreatePen(PS_SOLID, 1, RGB(0xff, 0xff, 0xff));
 	HPEN hOldPen = (HPEN)SelectObject(hdc, hWhitePen);
@@ -92,7 +95,7 @@ void CToolView::OnMouseMove(LPARAM _lParam)
 			ptCurMousePos.y);
 	}
 
-	for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicePos.begin(); it != m_vSlicePos.end(); ++it)
+	for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicedPos.begin(); it != m_vSlicedPos.end(); ++it)
 	{
 		Rectangle(hdc,
 			it->_ptDragLeftTop.x,
@@ -108,7 +111,7 @@ void CToolView::OnMouseMove(LPARAM _lParam)
 	ReleaseDC(m_hWnd, hdc);
 }
 
-void CToolView::OnMouseDown(LPARAM _lParam)
+void CMainView::OnMouseDown(LPARAM _lParam)
 {
 	m_bIsLButtonDown = true;
 
@@ -133,7 +136,7 @@ void CToolView::OnMouseDown(LPARAM _lParam)
 	}
 }
 
-void CToolView::OnMouseUp(LPARAM _lParam)
+void CMainView::OnMouseUp(LPARAM _lParam)
 {
 	m_bIsInvalidSlicedRect = false;
 	m_bIsLButtonDown = false;
@@ -249,9 +252,9 @@ void CToolView::OnMouseUp(LPARAM _lParam)
 		if (bPassed)
 		{
 			srp._ptDragLeftTop = { min_X - 1, min_Y - 1 };
-			srp._ptDragRightBottom = { max_X + 2, max_Y + 2 };
+			srp._ptDragRightBottom = { max_X + 3, max_Y + 3 };
 
-			m_vSlicePos.push_back(srp);
+			m_vSlicedPos.push_back(srp);
 		}
 	}
 
@@ -260,7 +263,7 @@ void CToolView::OnMouseUp(LPARAM _lParam)
 	// 추후 수정 필요!
 }
 
-void CToolView::Render()
+void CMainView::Render()
 {
 	ID2D1HwndRenderTarget* pRT = GetRT();
 	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());
@@ -270,7 +273,7 @@ void CToolView::Render()
 	D2D1_SIZE_F rtSize = pRT->GetSize();
 
 	// clear
-	pRT->Clear(D2D1::ColorF(0xff00ff)); // violet
+	pRT->Clear(D2D1::ColorF(0x7777ff)); // violet(변형)
 	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
 	pRT->DrawBitmap(
@@ -298,7 +301,7 @@ void CToolView::Render()
 	ReleaseDC(m_hWnd, hdc);
 }
 
-LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
+LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
@@ -332,6 +335,7 @@ LRESULT CToolView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 	case WM_MOUSEMOVE:
 	{
+		Render(); // DrawSlice로 드래그 할 때, 겹쳐 그려지는 현상 예방
 		OnMouseMove(_lParam);
 	}
 	break;

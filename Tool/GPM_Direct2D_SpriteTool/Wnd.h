@@ -7,6 +7,8 @@
 
 #include "WICBitmap.h"
 
+#include <vector>
+
 struct SLICE_RECT_POS
 {
 	POINT _ptDragLeftTop = {};
@@ -39,6 +41,9 @@ protected:
 
 	ID2D1SolidColorBrush*	m_pD2D1RedBrush = NULL;
 
+	// Wnd 공통 사용할 static 변수 (vector)
+	static std::vector<SLICE_RECT_POS> m_vSlicedPos;
+
 public:
 	CWnd();
 	virtual ~CWnd();
@@ -54,8 +59,8 @@ public:
 	void InitRedBursh()
 	{
 		m_pRenderTarget->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF(1.0f, 0.0f, 0.0f, 1.0f)),
-			&m_pD2D1RedBrush);
+			D2D1::ColorF(D2D1::ColorF(1.0f, 0.0f, 0.0f, 1.0f)), &m_pD2D1RedBrush
+		);
 	}
 
 public:
@@ -65,16 +70,18 @@ public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) = 0;
 
 public:
-	void Update();
-	virtual void Render();
+	virtual void Update();
+	virtual void Render() = 0;
 
 public:
 	void Release();
 
 public:
-	CBitmap* GetMyBitmap() { return m_pMyBitmap; }
 	HWND GetHwnd() { return m_hWnd; }
 	ID2D1HwndRenderTarget* GetRT() { return m_pRenderTarget; }
 	//ID2D1HwndRenderTarget* GetBackRT() { return m_pBack_RenderTarget; }
+
+	CBitmap* GetMyBitmap() { return m_pMyBitmap; }
+	CWICBitmap* GetMyWICBitmap() { return m_pMyWICBitmap; }
 };
 
