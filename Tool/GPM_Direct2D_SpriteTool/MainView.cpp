@@ -75,10 +75,40 @@ void CMainView::OnMouseMove(LPARAM _lParam)
 	DeleteObject(hWhitePen);
 	DeleteObject(hAlphaBrush);
 
-	// ========================================================================
+	ReleaseDC(m_hWnd, hdc);
+}
+
+void CMainView::OnMouseDown(LPARAM _lParam)
+{
+	m_bIsLButtonDown = true;
+
+	WORD x = LOWORD(_lParam);
+	WORD y = HIWORD(_lParam);
+
+	if (m_bSetAlphaZeroState)
+	{
+		m_pMyWICBitmap->SetAlphaZero(m_alphaZeroColor);
+
+		CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(
+			m_pRenderTarget,
+			m_pMyWICBitmap->GetWICBitmap(),
+			m_pMyBitmap->GetD2DBitmap());
+
+		m_bSetAlphaZeroState = false;
+	}
+
+	if (m_bDragSliceState)
+	{
+		ptTempLT = { x, y };
+	}
+}
+
+void CMainView::DrawDragedRect()
+{
+	HDC hdc = GetDC(m_hWnd);
 
 	HPEN hRedPen = CreatePen(PS_SOLID, 2, RGB(0xff, 0x00, 0x00));
-	hOldPen = (HPEN)SelectObject(hdc, hRedPen);
+	HPEN hOldPen = (HPEN)SelectObject(hdc, hRedPen);
 
 	//HBRUSH hRedBrush = CreateSolidBrush(RGB(0xff, 0x00, 0x00)); // Red 브러시
 	//hOldBrush = (HBRUSH)SelectObject(hdc, hRedBrush);
@@ -109,31 +139,6 @@ void CMainView::OnMouseMove(LPARAM _lParam)
 	DeleteObject(hRedPen);
 
 	ReleaseDC(m_hWnd, hdc);
-}
-
-void CMainView::OnMouseDown(LPARAM _lParam)
-{
-	m_bIsLButtonDown = true;
-
-	WORD x = LOWORD(_lParam);
-	WORD y = HIWORD(_lParam);
-
-	if (m_bSetAlphaZeroState)
-	{
-		m_pMyWICBitmap->SetAlphaZero(m_alphaZeroColor);
-
-		CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(
-			m_pRenderTarget,
-			m_pMyWICBitmap->GetWICBitmap(),
-			m_pMyBitmap->GetD2DBitmap());
-
-		m_bSetAlphaZeroState = false;
-	}
-
-	if (m_bDragSliceState)
-	{
-		ptTempLT = { x, y };
-	}
 }
 
 void CMainView::OnMouseUp(LPARAM _lParam)
@@ -294,11 +299,9 @@ void CMainView::Render()
 	pRT->EndDraw();
 
 
-	HDC hdc = GetDC(m_hWnd);
+	//...
 
-	// ...
-
-	ReleaseDC(m_hWnd, hdc);
+	DrawDragedRect(); // 신규 분리 함수
 }
 
 LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
@@ -335,8 +338,9 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 	case WM_MOUSEMOVE:
 	{
-		Render(); // DrawSlice로 드래그 할 때, 겹쳐 그려지는 현상 예방
 		OnMouseMove(_lParam);
+
+		InvalidateRect(m_hWnd, NULL, false); // false인 것에 주의 (더블버퍼링 X)
 	}
 	break;
 
@@ -350,8 +354,7 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 	{
 		OnMouseUp(_lParam);
 
-		// 주의 !!
-		InvalidateRect(m_hWnd, NULL, true);
+		InvalidateRect(m_hWnd, NULL, true); // true
 	}
 	break;
 

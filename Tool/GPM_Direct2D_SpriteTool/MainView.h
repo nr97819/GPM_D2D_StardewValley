@@ -55,5 +55,8 @@ public:
 	void OnMouseDown(LPARAM _lParam);
 
 public:
+	void DrawDragedRect();
+
+public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
 };
