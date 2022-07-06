@@ -2,10 +2,14 @@
 
 #include "D2DCore.h"
 
+std::vector<POS> CMainView::m_vecPixelPos = {};
+
 CMainView::CMainView()
 	: m_alphaZeroColor(0x0)
 	, m_bSetAlphaZeroState(false)
+	
 	, m_bDragSliceState(false)
+	, m_bAutoSliceState(false)
 
 	, m_bIsLButtonDown(false)
 
@@ -103,7 +107,7 @@ void CMainView::OnMouseDown(LPARAM _lParam)
 	}
 }
 
-void CMainView::DrawDragedRect()
+void CMainView::DrawSlicedSprite()
 {
 	HDC hdc = GetDC(m_hWnd);
 
@@ -116,22 +120,53 @@ void CMainView::DrawDragedRect()
 	// 시스템 함수 (delete 안해줘도 됨)
 	SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));
 
-	if (m_bDragSliceState && m_bIsLButtonDown)
+	if (m_bDragSliceState)
 	{
-		Rectangle(hdc,
-			ptTempLT.x,
-			ptTempLT.y,
-			ptCurMousePos.x,
-			ptCurMousePos.y);
-	}
+		if (m_bIsLButtonDown)
+		{
+			Rectangle(hdc,
+				ptTempLT.x,
+				ptTempLT.y,
+				ptCurMousePos.x,
+				ptCurMousePos.y);
+		}
 
-	for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicedPos.begin(); it != m_vSlicedPos.end(); ++it)
+		for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicedPos.begin(); it != m_vSlicedPos.end(); ++it)
+		{
+			Rectangle(hdc,
+				it->_ptDragLeftTop.x,
+				it->_ptDragLeftTop.y,
+				it->_ptDragRightBottom.x,
+				it->_ptDragRightBottom.y);
+		}
+	}
+	else if (m_bAutoSliceState)
 	{
-		Rectangle(hdc,
-			it->_ptDragLeftTop.x,
-			it->_ptDragLeftTop.y,
-			it->_ptDragRightBottom.x,
-			it->_ptDragRightBottom.y);
+		// 중복 처리 안하도록 추후 수정 (임시 함수)
+		AutoSlice();
+
+		for (std::vector<POS>::iterator it = m_vecPixelPos.begin(); it != m_vecPixelPos.end(); ++it)
+		{
+			// test용
+			
+			m_pMyWICBitmap->TestWICRed(it->m_x, it->m_y);
+
+			/*Rectangle(hdc,
+				it->m_x,
+				it->m_y,
+				it->m_x + 50,
+				it->m_y + 50
+			);*/
+		}
+
+		CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(
+			m_pRenderTarget,
+			m_pMyWICBitmap->GetWICBitmap(),
+			m_pMyBitmap->GetD2DBitmap());
+	}
+	else
+	{
+		// ...
 	}
 
 	/*SelectObject(hdc, hOldBrush);*/
@@ -139,6 +174,123 @@ void CMainView::DrawDragedRect()
 	DeleteObject(hRedPen);
 
 	ReleaseDC(m_hWnd, hdc);
+}
+
+void CMainView::AutoSlice()
+{
+	ID2D1Bitmap* d2d1_temp = *(m_pMyBitmap->GetD2DBitmap());
+
+	UINT width = (UINT)d2d1_temp->GetSize().width;
+	UINT height = (UINT)d2d1_temp->GetSize().height;
+
+
+	POS prevPos{};
+	m_vecPixelPos.clear();
+
+	// step 1 : 행을 순차적으로 읽다가, alpha가 0x0보다 큰 좌표를 찾으면 탈출
+
+	bool bEscapeLoop = false;
+	
+	for (UINT posY = 0; posY < height; ++posY)
+	{
+		for (UINT posX = 0; posX < width; ++posX)
+		{
+			DWORD hex_color 
+				= m_pMyWICBitmap->GetPixelColor(posX, posY, width, height);
+
+			BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
+			
+			// 조금이라도 Alpha 값이 있는 pixel이라면,
+			if (a_value > 0x0)
+			{
+				m_vecPixelPos.push_back(POS(posX, posY));
+				prevPos = POS(posX, posY);
+
+
+				bEscapeLoop = true;
+				break;
+			}
+		}
+
+		if (bEscapeLoop)
+			break;
+	}
+
+	// step 2 : 테두리 읽기 시작
+
+	UINT iDir = (UINT)DIR::RIGHT; // 처음에는 특수하게 RIGHT로 시작하면 됨
+	
+	//test
+	static int cnt = 0;
+
+
+	while (true)
+	{
+		/*switch (iDir)
+		{
+		case (UINT)DIR::UP:
+		{
+			newPos = GET_DIR(iDir);
+		}
+		break;
+
+		case (UINT)DIR::RIGHT:
+		{
+			newPos = GET_DIR(iDir);
+		}
+		break;
+
+		case (UINT)DIR::DOWN:
+		{
+
+		}
+		break;
+
+		case (UINT)DIR::LEFT:
+		{
+
+		}
+		break;
+		}*/
+
+
+		POS newPos = {};
+		newPos = GET_DIR(iDir);
+
+
+		DWORD hex_color
+			= m_pMyWICBitmap->GetPixelColor(newPos.m_x, newPos.m_y, width, height);
+
+		BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
+
+		std::vector<POS>::iterator it = m_vecPixelPos.end();
+		if (newPos == *(it - 1))
+		{
+			break; // 종료한다. (아직 구현 못 함)
+		}
+		
+		
+		// ===== 임시 중단 코드 ======
+		if (cnt > 100000)
+		{
+			break;; // 종료한다. (아직 구현 못 함)
+		}
+
+
+		if (a_value > 0x0)
+		{
+			m_vecPixelPos.push_back(POS(newPos.m_x, newPos.m_y));
+			prevPos = POS(newPos.m_x, newPos.m_y);
+
+			iDir = REVERSE_DIR(iDir) + 1; // 시작할 방향 : 반대 + 1
+		}
+		else
+		{
+			iDir = iDir + 1;
+		}
+
+		cnt++;
+	}
 }
 
 void CMainView::OnMouseUp(LPARAM _lParam)
@@ -301,7 +453,7 @@ void CMainView::Render()
 
 	//...
 
-	DrawDragedRect(); // 신규 분리 함수
+	DrawSlicedSprite(); // 신규 분리 함수
 }
 
 LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
@@ -400,14 +552,36 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 			PostQuitMessage(0);
 			break;
 		*/
+
+		case ID_SPRITE_AUTOSLICE:
+		{
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bSetAlphaZeroState)
+				m_bSetAlphaZeroState = false;
+
+			m_bAutoSliceState = true;
+		}
+		break;
+
 		case ID_SPRITE_DRAGSLICE:
 		{
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bSetAlphaZeroState)
+				m_bSetAlphaZeroState = false;
+
 			m_bDragSliceState = true;
 		}
 		break;
 
 		case ID_COLOR_SETALPHAZERO:
 		{
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+
 			m_bSetAlphaZeroState = true;
 		}
 		break;

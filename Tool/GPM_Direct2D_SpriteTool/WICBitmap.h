@@ -32,6 +32,9 @@ public:
 
 public:
 	DWORD GetPixelColor(UINT _x, UINT _y, UINT _width, UINT _height);
+	
 	void SetAlphaZero(DWORD _rgbaValue);
+
+	void TestWICRed(UINT _x, UINT _y);
 };
 

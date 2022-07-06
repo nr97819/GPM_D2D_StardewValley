@@ -5,8 +5,8 @@
 #define IDR_MENU1                       101
 #define ID_FILE_LOAD                    40001
 #define ID_FILE_SAVE                    40002
-#define ID_SPRITE_AUTOSPLIT             40003
-#define ID_SPRITE_GRIDSPLIT             40004
+#define ID_SPRITE_AUTOSLICE	            40003
+#define ID_SPRITE_GRIDSLICE             40004
 #define ID_SPRITE_DRAGSLICE             40005
 #define ID_COLOR_SETALPHAZERO           40007
 #define ID_RADIOBUTTON_RADIOTEST1       40008

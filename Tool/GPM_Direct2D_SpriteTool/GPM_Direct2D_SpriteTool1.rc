@@ -59,8 +59,8 @@ BEGIN
     END
     POPUP "Sprite"
     BEGIN
-        MENUITEM "Auto Slice",                  ID_SPRITE_AUTOSPLIT
-        MENUITEM "Grid Slice",                  ID_SPRITE_GRIDSPLIT
+        MENUITEM "Auto Slice",                  ID_SPRITE_AUTOSLICE
+        MENUITEM "Grid Slice",                  ID_SPRITE_GRIDSLICE
         MENUITEM "Drag Slice",                  ID_SPRITE_DRAGSLICE
     END
     POPUP "Color"
