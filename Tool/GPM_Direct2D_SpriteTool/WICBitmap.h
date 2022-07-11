@@ -29,6 +29,7 @@ public:
 
 public:
 	IWICBitmap* GetWICBitmap() { return m_pWICBitmap; }
+	UINT GetCBufferSize() { return m_cbBufferSize; }
 
 public:
 	DWORD GetPixelColor(UINT _x, UINT _y, UINT _width, UINT _height);

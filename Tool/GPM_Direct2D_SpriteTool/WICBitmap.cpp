@@ -175,7 +175,7 @@ void CWICBitmap::TestWICRed(UINT _x, UINT _y)
 				*temp &= 0x00ffffff;
 		}*/
 		
-		BYTE* addr = pv + _x + _y * m_width;
+		BYTE* addr = pv + (_x) + (_y * m_width);
 
 		DWORD* temp = (DWORD*)addr;
 		//if (*temp == _rgbaValue)
