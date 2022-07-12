@@ -21,11 +21,17 @@ private:
 
 public:
 	CWICBitmap();
+	CWICBitmap(IWICBitmap* _wicb, UINT _cbSize, UINT _w, UINT _h);
 	~CWICBitmap();
 
 public:
 	HRESULT Create(const wstring& _wsFileName, ID2D1HwndRenderTarget* _pRenderTarget);
 	void Release();
+	CWICBitmap* Clone()
+	{
+		CWICBitmap* clone = new CWICBitmap(this->m_pWICBitmap, this->m_cbBufferSize, this->m_width, this->m_height);
+		return clone;
+	}
 
 public:
 	IWICBitmap* GetWICBitmap() { return m_pWICBitmap; }
@@ -33,9 +39,11 @@ public:
 
 public:
 	DWORD GetPixelColor(UINT _x, UINT _y, UINT _width, UINT _height);
+	UINT GetWidth() { return m_width; }
+	UINT GetHeight() { return m_height; } // ¾È ¾¸
 	
 	void SetAlphaZero(DWORD _rgbaValue);
 
-	void TestWICRed(UINT _x, UINT _y);
+	void SetSpecificPosAlphaZero(UINT _x, UINT _y);
 };
 

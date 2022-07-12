@@ -17,6 +17,9 @@
     <Filter Include="소스 파일\Engine\Wnd">
       <UniqueIdentifier>{76239e34-b63d-4e4e-a4e1-142d69cef327}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Engine\Algorithm">
+      <UniqueIdentifier>{09b98649-06cf-4a9e-a554-503fa0abe816}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GPM_Direct2D_SpriteTool.cpp">
@@ -72,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="SpriteView.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
+    </ClInclude>
+    <ClInclude Include="FloodFill.h">
+      <Filter>소스 파일\Engine\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

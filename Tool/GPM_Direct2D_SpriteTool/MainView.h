@@ -2,21 +2,6 @@
 
 #include "Wnd.h"
 
-enum class MENU_RADIO_ITEM
-{
-	RADIOTEST1 = 40008,
-	RADIOTEST2 = 40009,
-	RADIOTEST3 = 40010,
-
-	LAST
-
-	/*
-	#define ID_RADIOBUTTON_RADIOTEST1       40008
-	#define ID_RADIOBUTTON_RADIOTEST2       40009
-	#define ID_RADIOBUTTON_RADIOTEST3       40010
-	*/
-};
-
 class CMainView : public CWnd
 {
 private:

@@ -132,7 +132,7 @@ void CWICBitmap::SetAlphaZero(DWORD _rgbaValue)
 	}
 }
 
-void CWICBitmap::TestWICRed(UINT _x, UINT _y)
+void CWICBitmap::SetSpecificPosAlphaZero(UINT _x, UINT _y)
 {
 	HRESULT hr = S_OK;
 
@@ -175,12 +175,12 @@ void CWICBitmap::TestWICRed(UINT _x, UINT _y)
 				*temp &= 0x00ffffff;
 		}*/
 		
-		BYTE* addr = pv + (_x) + (_y * m_width);
+		//BYTE* addr = pv + (_x) + (_y * m_width);
+		DWORD* addr = ((DWORD*)pv) + (_x) + (_y * m_width);
 
 		DWORD* temp = (DWORD*)addr;
 		//if (*temp == _rgbaValue)
-
-		*temp = 0xffff0000;
+		*temp = 0x00ffffff; // Alpha 값을 0으로 만든다.
 
 		//for (std::vector<POS>::iterator it = CMainView::m_vecPixelPos.begin(); it != CMainView::m_vecPixelPos.end(); ++it)
 		//{

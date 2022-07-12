@@ -178,28 +178,14 @@ void CMainView::AutoSlice()
 			// 조금이라도 Alpha 값이 있는 pixel이라면,
 			if (a_value > 0x0)
 			{
-				//m_pMyWICBitmap->TestWICRed(posX, posY);
+				m_pMyWICBitmap->SetSpecificPosAlphaZero(posX, posY);
 				/*m_vecPixelPos.push_back(POS(posX, posY));
 				prevPos = POS(posX, posY);*/
 			}
 		}
 	}
 
-	// test
-	for (int i = 0; i < 1500; ++i)
-	{
-		m_pMyWICBitmap->TestWICRed(i, i);
-	}
-
-	//for (UINT i = 0; i < m_cbBufferSize - 1; ++i)
-	//{
-	//	BYTE* addr = pv + i;
-
-	//	DWORD* temp = (DWORD*)addr;
-	//	if (*temp == _rgbaValue)
-	//		*temp &= 0x00ffffff;
-	//}
-
+	// 변경된 WICBitmap을 D2D1Bitmap에 적용 (새로고침)
 	CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(
 		m_pRenderTarget,
 		m_pMyWICBitmap->GetWICBitmap(),

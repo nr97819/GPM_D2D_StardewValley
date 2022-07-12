@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="AnimView.h" />
+    <ClInclude Include="FloodFill.h" />
     <ClInclude Include="SpriteView.h" />
     <ClInclude Include="MainView.h" />
     <ClInclude Include="D2DCore.h" />
