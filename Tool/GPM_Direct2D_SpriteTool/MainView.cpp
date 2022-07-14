@@ -2,6 +2,8 @@
 
 #include "D2DCore.h"
 
+#include "FloodFill.h"
+
 CMainView::CMainView()
 	: m_alphaZeroColor(0x0)
 	, m_bSetAlphaZeroState(false)
@@ -166,24 +168,40 @@ void CMainView::AutoSlice()
 
 	POINT startPos = {};
 
-	for (UINT posY = 0; posY < height; ++posY)
+	//for (UINT posY = 0; posY < height; ++posY)
+	//{
+	//	for (UINT posX = 0; posX < width; ++posX)
+	//	{
+	//		DWORD hex_color
+	//			= m_pMyWICBitmap->GetPixelColor(posX, posY, width, height);
+
+	//		BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
+
+	//		// 조금이라도 Alpha 값이 있는 pixel이라면,
+	//		if (a_value > 0x0)
+	//		{
+	//			m_pMyWICBitmap->SetSpecificPosAlphaZero(posX, posY);
+	//			/*m_vecPixelPos.push_back(POS(posX, posY));
+	//			prevPos = POS(posX, posY);*/
+	//		}
+	//	}
+	//}
+
+
+	// 초기화
+	DWORD* buffer = new DWORD[width * height];
+	for (int i = 0; i < width * height; ++i)
 	{
-		for (UINT posX = 0; posX < width; ++posX)
-		{
-			DWORD hex_color
-				= m_pMyWICBitmap->GetPixelColor(posX, posY, width, height);
-
-			BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
-
-			// 조금이라도 Alpha 값이 있는 pixel이라면,
-			if (a_value > 0x0)
-			{
-				m_pMyWICBitmap->SetSpecificPosAlphaZero(posX, posY);
-				/*m_vecPixelPos.push_back(POS(posX, posY));
-				prevPos = POS(posX, posY);*/
-			}
-		}
+		*(buffer + i) = 0;
 	}
+
+	UINT size = m_pMyWICBitmap->GetWICMemory(&buffer, width, height);
+
+	FloodFill(&buffer, width, height);
+
+	m_pMyWICBitmap->SetWICMemory(&buffer, width, height);
+
+	delete[] buffer;
 
 	// 변경된 WICBitmap을 D2D1Bitmap에 적용 (새로고침)
 	CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(

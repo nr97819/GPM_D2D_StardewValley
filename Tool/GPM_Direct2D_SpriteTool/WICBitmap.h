@@ -43,7 +43,10 @@ public:
 	UINT GetHeight() { return m_height; } // ¾È ¾¸
 	
 	void SetAlphaZero(DWORD _rgbaValue);
-
 	void SetSpecificPosAlphaZero(UINT _x, UINT _y);
+
+public:
+	UINT GetWICMemory(DWORD** _outBuffer, UINT _width, UINT _height);
+	void SetWICMemory(DWORD** _InBuffer, UINT _width, UINT _height);
 };
 

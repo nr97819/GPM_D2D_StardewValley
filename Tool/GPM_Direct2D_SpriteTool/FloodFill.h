@@ -1,170 +1,126 @@
-#include <iostream>
+#pragma once
 
-#include <Windows.h>
+#include <conio.h>
+
 #include <vector>
+#include <wtypes.h>
+using std::vector;
 
-//#define NEW_MAX_SIZE 19
-
-//int map2[NEW_MAX_SIZE][NEW_MAX_SIZE] =
-//{
-//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1},
-//	{1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1},
-//	{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-//	{1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1},
-//	{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-//	{1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-//};
-
-std::vector<POS> g_vecStack;
-
-struct POS
+typedef struct POS
 {
-	int m_x = 0;
-	int m_y = 0;
+	int x;
+	int y;
 
 	POS()
 	{
-		m_x = 0;
-		m_y = 0;
+		x = 0;
+		y = 0;
 	}
 
 	POS(int _x, int _y)
 	{
-		m_x = _x;
-		m_y = _y;
+		x = _x;
+		y = _y;
 	}
+}element;
 
-	// const 쓰는 것에 주의 (안쓰니 explicit으로 선언되었다고 경고 뜸 !)
-	POS(const POS& _other)
-	{
-		m_x = _other.m_x;
-		m_y = _other.m_y;
-	}
-
-	bool operator==(const POS& _other)
-	{
-		if (m_x == _other.m_x && m_y == _other.m_y)
-			return true;
-		else
-			return false;
-	}
-};
-
-enum class TILE_TYPE
+void print_map(DWORD** _buffer, UINT _width, UINT _height)
 {
-	EMPTY = 0,
-	WALL = 1,
-	PASSED = 2
-};
-
-enum class DIR
-{
-	UP = 0,
-	RIGHT = 1,
-	DOWN = 2,
-	LEFT = 3
-};
-
-int DIR_X[4] = { 0, 1, 0, -1 };
-int DIR_Y[4] = { -1, 0, 1, 0 };
-
-POS nowPosition(4, 4);
-int nowDir = (int)DIR::UP;
-
-
-
-bool LookAroundAndMove(BYTE* _addr, UINT _width, UINT _height)
-{
-	bool bIsFirst = true;
-
-	int tempX = -1;
-	int tempY = -1;
-
-	// 첫 시작을 위한 코드
-	/*if (map[nowPosition.m_x][nowPosition.m_y] != (int)TILE_TYPE::PASSED)
-	{
-		map[nowPosition.m_x][nowPosition.m_y] = (int)TILE_TYPE::PASSED;
-	}*/
-
-	// 모든 방향 확인
-	for (int iDir = (int)DIR::UP; iDir <= (int)DIR::LEFT; ++iDir)
-	{
-		if ((int)TILE_TYPE::EMPTY == map2[nowPosition.m_y + DIR_Y[iDir]][nowPosition.m_x + DIR_X[iDir]])
+	for (int j = 0; j < _height; ++j) {
+		for (int i = 0; i < _width; ++i)
 		{
-			if (bIsFirst)
+			DWORD hex = *((*_buffer) + (j * _width) + i);
+			BYTE alpha = static_cast<BYTE>((hex & 0xff'00'00'00) >> (8 * 3));
+
+			//if (alpha == 0xff'ff'ff'ff)
+			if (alpha == 0xff)
 			{
-				tempX = nowPosition.m_x + DIR_X[iDir];
-				tempY = nowPosition.m_y + DIR_Y[iDir];
-
-				g_vecStack.push_back(POS(nowPosition.m_y + DIR_Y[iDir], nowPosition.m_x + DIR_X[iDir]));
-
-				bIsFirst = false;
+				printf("1 ");
+				//printf("%d ", );
+			}
+			//else if (*(map2 + (j * WIDTH) + i) == 0x00'00'00'00)
+			else if (alpha == 0x00)
+			{
+				printf("0 ");
 			}
 			else
 			{
-				g_vecStack.push_back(POS(nowPosition.m_y + DIR_Y[iDir], nowPosition.m_x + DIR_X[iDir]));
+				// 에러 발생
 			}
 		}
+		printf("\n");
 	}
-
-	bIsFirst = true;
-
-	// 갈 방향이 없다면
-	if (tempX < 0 && tempY < 0)
-	{
-		nowDir = (int)DIR::UP;
-
-		tempX = -1;
-		tempY = -1;
-
-		while (true)
-		{
-			if (g_vecStack.size() > 0)
-			{
-				nowPosition = g_vecStack.back();
-				g_vecStack.pop_back();
-
-				/*if (map2[nowPosition.m_y][nowPosition.m_x] == (int)TILE_TYPE::PASSED)
-					continue;*/
-
-				return true;
-			}
-			else
-				return false;
-		}
-	}
-
-	nowPosition.m_x = tempX;
-	nowPosition.m_y = tempY;
-
-	map2[nowPosition.m_y][nowPosition.m_x] = (int)TILE_TYPE::PASSED;
-
-	return true;
+	printf("\n");
 }
 
-void FloodFill()
+void print_stack(const vector<element>& _stack)
 {
-	// ============ Start ============
-	bool bResult = true;
-	while (bResult)
+	printf("Stack : ");
+	if (_stack.empty())
 	{
-		//COORD posXY = { 0, 0 };
-		//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), posXY);
-		//PrintMap();
-
-		bResult = LookAroundAndMove();
+		printf("Empty");
 	}
+	else
+	{
+		//for (size_t i = 0; i <= _stack.size(); ++i)
+		for (vector<element>::const_iterator cit = _stack.begin(); cit != _stack.end(); ++cit)
+		{
+			printf("(%d, %d) ", cit->x, cit->y);
+		}
+	}
+	printf("\n");
+}
+
+void FloodFill(DWORD** _buffer, UINT _width, UINT _height)
+{
+	// 초기화 X (이미 값 복사되어 들어있는 상태이므로)
+	
+	// 초기화 후, 첫 데이터 출력
+	//print_map();
+
+	// 시작
+	vector<element> stack;
+	stack.clear();
+
+	stack.push_back(element(0, 0));
+	//Push(&to_visit, get_element(0, 0)); // start cell  (바깥 쪽 하얀색)
+	// Push(&to_visit, get_element(3, 3)); // start cell (안 쪽 하얀색)
+
+	while (!stack.empty())
+	{
+		element cell = stack.back();
+		stack.pop_back();
+
+		if (*((*_buffer) + (cell.y * _width) + cell.x)) // already visited
+			continue;
+
+		*((*_buffer) + (cell.y * _width) + cell.x) = 0xff'00'00'00; // 방문 처리
+
+		// 현재 방문 중인 위치에서 갈 수 있는 곳들 스택에 넣기 (상하좌우)
+		if (cell.y - 1 >= 0 && *((*_buffer) + ((cell.y - 1) * _width) + cell.x) == 0x00'00'00'00) // up
+			stack.push_back(element(cell.x, cell.y - 1));
+		//Push(&to_visit, get_element(cell.i, cell.j - 1));
+
+		if (cell.y + 1 < _height && *((*_buffer) + ((cell.y + 1) * _width) + cell.x) == 0x00'00'00'00) // down
+			stack.push_back(element(cell.x, cell.y + 1));
+		//Push(&to_visit, get_element(cell.i, cell.j + 1));
+
+		if (cell.x - 1 >= 0 && *((*_buffer) + (cell.y * _width) + cell.x - 1) == 0x00'00'00'00) // left
+			stack.push_back(element(cell.x - 1, cell.y));
+		//Push(&to_visit, get_element(cell.i - 1, cell.j));
+
+		if (cell.x + 1 < _width && *((*_buffer) + (cell.y * _width) + cell.x + 1) == 0x00'00'00'00) // right
+			stack.push_back(element(cell.x + 1, cell.y));
+		//Push(&to_visit, get_element(cell.i + 1, cell.j));
+
+		// 애니메이션 효과로 출력
+		system("cls"); // #include <conio.h> 에서 지원하는, 콘솔창 지우는 명령어! (clear screen 의 약자) system(커맨드)
+		print_stack(stack);
+		printf("Cell : (%d, %d)\n", cell.x, cell.y);
+		print_map(_buffer, _width, _height);
+		int dummy = _getch(); // 사용자가 엔터 쳐야 다음으로 넘어가게끔
+	}
+
+	printf("Result:\n");
+	print_map(_buffer, _width, _height);
 }
