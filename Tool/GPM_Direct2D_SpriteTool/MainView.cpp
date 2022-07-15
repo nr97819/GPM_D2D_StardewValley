@@ -4,6 +4,8 @@
 
 #include "FloodFill.h"
 
+
+
 CMainView::CMainView()
 	: m_alphaZeroColor(0x0)
 	, m_bSetAlphaZeroState(false)
@@ -187,7 +189,6 @@ void CMainView::AutoSlice()
 	//	}
 	//}
 
-
 	// 초기화
 	DWORD* buffer = new DWORD[width * height];
 	for (int i = 0; i < width * height; ++i)
@@ -195,11 +196,33 @@ void CMainView::AutoSlice()
 		*(buffer + i) = 0;
 	}
 
+	// 새로 작성한 코드
 	UINT size = m_pMyWICBitmap->GetWICMemory(&buffer, width, height);
+	//FloodFill(&buffer, width, height, 38, 60);
+	for (UINT y = 0; y < height - 1; ++y)
+	{
+		for (UINT x = 0; x < width - 1; ++x)
+		{
+			if ((*(buffer + (y * width) + x) & 0xff'00'00'00) > 0x00'00'00'00)
+			{
+				D2D1_RECT_F result = FloodFill(&buffer, width, height, x, y);
+				m_vSlicedRects.push_back(result);
+			}
+		}
+	}
+	// 임시 비활성화
+	//m_pMyWICBitmap->SetWICMemory(&buffer, width, height);
 
-	FloodFill(&buffer, width, height);
-
-	m_pMyWICBitmap->SetWICMemory(&buffer, width, height);
+	/*for (UINT y = 0; y < height - 1; ++y)
+	{
+		for (UINT x = 0; x < width - 1; ++x)
+		{
+			if ((((*buffer) + (y * width) + x) & 0xff'00'00'00) > 0x00'00'00'00)
+			{
+				FloodFill(&buffer, width, height, x, y);
+			}
+		}
+	}*/
 
 	delete[] buffer;
 
@@ -365,8 +388,17 @@ void CMainView::Render()
 			pD2DBitmap->GetSize().height
 		)
 	);
-	pRT->EndDraw();
 
+	ID2D1SolidColorBrush* pRedBrush;
+	pRT->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::Red), &pRedBrush);
+
+	for (vector<D2D1_RECT_F>::iterator it = m_vSlicedRects.begin(); it != m_vSlicedRects.end(); ++it)
+	{
+		pRT->DrawRectangle(*(it), pRedBrush);
+	}
+
+	pRT->EndDraw();
 
 	//...
 

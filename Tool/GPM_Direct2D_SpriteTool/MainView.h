@@ -20,6 +20,9 @@ private:
 	// ===================== NEW =======================
 	POINT ptCurMousePos = {};
 
+	// ============ TEST ============
+	std::vector<D2D1_RECT_F> m_vSlicedRects;
+
 private:
 	DWORD m_alphaZeroColor;
 
