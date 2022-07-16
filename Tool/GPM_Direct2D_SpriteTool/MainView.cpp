@@ -4,7 +4,7 @@
 
 #include "FloodFill.h"
 
-
+std::vector<D2D1_RECT_F> CMainView::m_vSlicedRects;
 
 CMainView::CMainView()
 	: m_alphaZeroColor(0x0)
@@ -151,7 +151,7 @@ void CMainView::DrawSlicedSprite()
 	}
 	else
 	{
-		// ...
+		// ... ...
 	}
 
 	/*SelectObject(hdc, hOldBrush);*/
@@ -167,27 +167,6 @@ void CMainView::AutoSlice()
 
 	UINT width = (UINT)d2dBitmap->GetSize().width;
 	UINT height = (UINT)d2dBitmap->GetSize().height;
-
-	POINT startPos = {};
-
-	//for (UINT posY = 0; posY < height; ++posY)
-	//{
-	//	for (UINT posX = 0; posX < width; ++posX)
-	//	{
-	//		DWORD hex_color
-	//			= m_pMyWICBitmap->GetPixelColor(posX, posY, width, height);
-
-	//		BYTE a_value = static_cast<BYTE>((hex_color & 0xff000000) >> (8 * 3));
-
-	//		// 조금이라도 Alpha 값이 있는 pixel이라면,
-	//		if (a_value > 0x0)
-	//		{
-	//			m_pMyWICBitmap->SetSpecificPosAlphaZero(posX, posY);
-	//			/*m_vecPixelPos.push_back(POS(posX, posY));
-	//			prevPos = POS(posX, posY);*/
-	//		}
-	//	}
-	//}
 
 	// 초기화
 	DWORD* buffer = new DWORD[width * height];
@@ -210,19 +189,8 @@ void CMainView::AutoSlice()
 			}
 		}
 	}
-	// 임시 비활성화
+	// [버퍼의 수정된 alpha들을 WIC에도 적용 : 현재 불필요]
 	//m_pMyWICBitmap->SetWICMemory(&buffer, width, height);
-
-	/*for (UINT y = 0; y < height - 1; ++y)
-	{
-		for (UINT x = 0; x < width - 1; ++x)
-		{
-			if ((((*buffer) + (y * width) + x) & 0xff'00'00'00) > 0x00'00'00'00)
-			{
-				FloodFill(&buffer, width, height, x, y);
-			}
-		}
-	}*/
 
 	delete[] buffer;
 
@@ -354,6 +322,40 @@ void CMainView::OnMouseUp(LPARAM _lParam)
 			m_vSlicedPos.push_back(srp);
 		}
 	}
+	else if (m_spriteMode != (UINT)SPRITE_MODE::NONE)
+	{
+		switch (m_spriteMode)
+		{
+			case (UINT)SPRITE_MODE::SELECT:
+			{
+				// 있을리가 없는 기능...
+			}
+			break;
+
+			case (UINT)SPRITE_MODE::UNSELECT:
+			{
+				for (auto it = m_vSlicedRects.begin(); it != m_vSlicedRects.end(); ++it)
+				{
+					if (pos_Y <= it->top &&
+						pos_Y >= it->bottom &&
+						pos_X <= it->right &&
+						pos_X >= it->left)
+					{
+						D2D1_RECT_F tempRt = m_vSlicedRects.back();
+						m_vSlicedRects.pop_back();
+						it->top = tempRt.top;
+						it->bottom = tempRt.bottom;
+						it->left = tempRt.left;
+						it->right = tempRt.right;
+					}
+				}
+			}
+			break;
+
+			default:
+				break;
+		}
+	}
 
 	//m_bDragSliceState = false;
 	// -> 일단 연속 사용 가능하도록..!
@@ -389,7 +391,7 @@ void CMainView::Render()
 		)
 	);
 
-	ID2D1SolidColorBrush* pRedBrush;
+	ID2D1SolidColorBrush* pRedBrush = nullptr;
 	pRT->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF(0xff'ff'00'00)), &pRedBrush);
 
@@ -510,6 +512,7 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 				m_bDragSliceState = false;
 			if (m_bSetAlphaZeroState)
 				m_bSetAlphaZeroState = false;
+			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
 			m_bAutoSliceState = true;
 		}
@@ -521,6 +524,7 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 				m_bDragSliceState = false;
 			if (m_bSetAlphaZeroState)
 				m_bSetAlphaZeroState = false;
+			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
 			m_bDragSliceState = true;
 		}
@@ -532,8 +536,35 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 				m_bDragSliceState = false;
 			if (m_bDragSliceState)
 				m_bDragSliceState = false;
+			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
 			m_bSetAlphaZeroState = true;
+		}
+		break;
+
+		// ================ [select/unselect] ===================
+		case ID_MODE_SELECT:
+		{
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bSetAlphaZeroState)
+				m_bSetAlphaZeroState = false;
+
+			m_spriteMode = (UINT)SPRITE_MODE::SELECT;
+		}
+		break;
+		case ID_MODE_UNSELECT:
+		{
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if(m_bSetAlphaZeroState)
+				m_bSetAlphaZeroState = false;
+
+			m_spriteMode = (UINT)SPRITE_MODE::UNSELECT;
 		}
 		break;
 

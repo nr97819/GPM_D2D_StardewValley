@@ -59,9 +59,17 @@ BEGIN
     END
     POPUP "Sprite"
     BEGIN
-        MENUITEM "Auto Slice",                  ID_SPRITE_AUTOSLICE
-        MENUITEM "Grid Slice",                  ID_SPRITE_GRIDSLICE
-        MENUITEM "Drag Slice",                  ID_SPRITE_DRAGSLICE
+        POPUP "Slice Sprites"
+        BEGIN
+            MENUITEM "Slice by Drag",               ID_SPRITE_DRAGSLICE
+            MENUITEM "Slice into Grid",             ID_SPRITE_GRIDSLICE
+            MENUITEM "Slice Automatically",         ID_SPRITE_AUTOSLICE
+        END
+        POPUP "Mode"
+        BEGIN
+            MENUITEM "Select",                      ID_MODE_SELECT
+            MENUITEM "Unselect",                    ID_MODE_UNSELECT
+        END
     END
     POPUP "Color"
     BEGIN

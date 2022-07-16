@@ -86,7 +86,7 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 	m_arrWnds[(UINT)WND_TYPE::Sprite]->InitBitmap(wsFilePath + L"woman.png");
 	m_arrWnds[(UINT)WND_TYPE::Sprite]->_ShowWindow(); // 추후, SpriteView 탭 활성화 시, Show 하도록 설정
 	m_arrWnds[(UINT)WND_TYPE::Sprite]->Adjust(
-		POINT{ 600, ((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().height / 2) },		// size
+		POINT{ 700, ((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().height / 2) },		// size
 		POINT{					// position
 			((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().width + 50), // 수동 처리 추후 수정
 			50
@@ -102,7 +102,7 @@ HRESULT CApp::CreateWindows(HINSTANCE _hInstance, int _nCmdShow)
 	m_arrWnds[(UINT)WND_TYPE::Image]->InitBitmap(wsFilePath + L"midnight.png");
 	m_arrWnds[(UINT)WND_TYPE::Image]->_ShowWindow();
 	m_arrWnds[(UINT)WND_TYPE::Image]->Adjust(
-		POINT{ 600, ((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().height / 2) },		// size
+		POINT{ 700, ((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().height / 2) },		// size
 		POINT{					// position
 			((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().width + 50), // 수동 처리 추후 수정
 			((int)m_arrWnds[(UINT)WND_TYPE::Main]->GetRT()->GetSize().height / 2) + 50

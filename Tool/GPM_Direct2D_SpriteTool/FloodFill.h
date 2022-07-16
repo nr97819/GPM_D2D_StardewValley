@@ -1,7 +1,6 @@
 #pragma once
 
 #include <conio.h>
-
 #include <vector>
 #include <wtypes.h>
 using std::vector;
@@ -104,8 +103,7 @@ D2D1_RECT_F FloodFill(DWORD** _buffer, UINT _width, UINT _height, UINT _firstX, 
 		// ======== MAX / MIN ========
 		if (result.top < cell.y)	result.top = cell.y;
 		if (result.bottom > cell.y)	result.bottom = cell.y;
-		if (result.left > cell.x)	
-			result.left = cell.x;
+		if (result.left > cell.x)	result.left = cell.x;
 		if (result.right < cell.x)	result.right = cell.x;
 		// ===========================
 
@@ -136,8 +134,9 @@ D2D1_RECT_F FloodFill(DWORD** _buffer, UINT _width, UINT _height, UINT _firstX, 
 		int dummy = _getch(); // 사용자가 엔터 쳐야 다음으로 넘어가게끔*/
 	}
 
-	printf("Result:\n");
-	print_map(_buffer, _width, _height);
+	// 진행 출력 확인용
+	/*printf("Result:\n");
+	print_map(_buffer, _width, _height);*/
 
 	return result;
 }

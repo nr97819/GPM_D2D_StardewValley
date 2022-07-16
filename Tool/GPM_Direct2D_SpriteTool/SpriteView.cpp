@@ -42,20 +42,42 @@ void CSpriteView::Render()
 	pRT->Clear(D2D1::ColorF(0x7777ff)); // violet(변형)
 	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
+	// 재활용 해서 쓰는 중 ...
 	POINT ptStartDrawPos = { 0, 0 };
+	UINT iMaxWidth = 600;
+	UINT iMaxHeight = 0;
 
 	for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicedPos.begin(); it != m_vSlicedPos.end(); ++it)
 	{
 		UINT width = it->_ptDragRightBottom.x - it->_ptDragLeftTop.x;
 		UINT height = it->_ptDragRightBottom.y - it->_ptDragLeftTop.y;
 
+		// 크기 확대
+		/*width *= 1.5;
+		height *= 1.5;*/
+
+		// =========== StartPosY에 대한 Exception ===========
+		if (iMaxHeight < height)
+		{
+			iMaxHeight = height;
+		}
+
+		// =========== StartPosY에 대한 Exception ===========
+		if (ptStartDrawPos.x > iMaxWidth)
+		{
+			ptStartDrawPos.x = 0;
+			ptStartDrawPos.y += iMaxHeight + 10;
+
+			iMaxHeight = -1;
+		}
+
 		pRT->DrawBitmap(
 			pD2DBitmap,
 			D2D1::RectF(
 				ptStartDrawPos.x,
 				ptStartDrawPos.y,
-				ptStartDrawPos.x + width * (1.5f), // 임시 크기 확장
-				ptStartDrawPos.y + height * (1.5f) // 임시 크기 확장
+				ptStartDrawPos.x + width, // 임시 크기 확장
+				ptStartDrawPos.y + height // 임시 크기 확장
 			),
 			1.0f, // Alpha 값
 			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
@@ -72,32 +94,81 @@ void CSpriteView::Render()
 		D2D1_RECT_F d2d_rectangle = D2D1::RectF(
 			ptStartDrawPos.x,
 			ptStartDrawPos.y,
-			ptStartDrawPos.x + width * (1.5f), // 임시 크기 확장
-			ptStartDrawPos.y + height * (1.5f) // 임시 크기 확장
+			ptStartDrawPos.x + width, // 임시 크기 확장
+			ptStartDrawPos.y + height // 임시 크기 확장
 		);
 		pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
 
 		UINT padding = 0; // 불필요
-		ptStartDrawPos.x += (width * (1.5f)) + padding;
+		ptStartDrawPos.x += width + padding;
 	}
 
-	// --------------- Auto Slice 관련 출력 ---------------
-	// ...
-	// ---------------------------------------------------
+	// ======================================================
+	// --------------- Auto Slice 관련 출력 ------------------
+	// ======================================================
+	std::vector<D2D1_RECT_F> rects = CMainView::GetSlicedRects();
 
+	for (std::vector<D2D1_RECT_F>::iterator it = rects.begin(); it != rects.end(); ++it)
+	{
+		UINT width = it->right - it->left;
+		UINT height = it->top - it->bottom;
+
+		// 크기 확대
+		/*width *= 1.5;
+		height *= 1.5;*/
+
+		// =========== StartPosY에 대한 Exception ===========
+		if (iMaxHeight < height)
+		{
+			iMaxHeight = height;
+		}
+
+		// =========== StartPosY에 대한 Exception ===========
+		if (ptStartDrawPos.x > iMaxWidth)
+		{
+			ptStartDrawPos.x = 0;
+			ptStartDrawPos.y += iMaxHeight;
+
+			iMaxHeight = 0;
+		}
+
+		pRT->DrawBitmap(
+			pD2DBitmap,
+			D2D1::RectF(
+				ptStartDrawPos.x,
+				ptStartDrawPos.y,
+				ptStartDrawPos.x + width, // 임시 크기 확장
+				ptStartDrawPos.y + height // 임시 크기 확장
+			),
+			1.0f, // Alpha 값
+			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+			D2D1::RectF(
+				it->left,
+				it->top,
+				it->right,
+				it->bottom
+			)
+		);
+
+		//ptStartDrawPos.y += it->_ptDragRightBottom.y;
+
+		D2D1_RECT_F d2d_rectangle = D2D1::RectF(
+			ptStartDrawPos.x,
+			ptStartDrawPos.y,
+			ptStartDrawPos.x + width, // 임시 크기 확장
+			ptStartDrawPos.y + height // 임시 크기 확장
+		);
+		pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
+
+		UINT padding = 0; // 불필요
+		ptStartDrawPos.x += width + padding;
+	}
 
 	pRT->EndDraw();
 
 	// =========================================================
 
 	HDC hdc = GetDC(m_hWnd);
-
-	//Rectangle(hdc,
-	//	ptStartDrawPos.x,
-	//	ptStartDrawPos.y,
-	//	ptStartDrawPos.x + width * (1.5f), // 임시 크기 확장
-	//	ptStartDrawPos.y + height * (1.5f) // 임시 크기 확장
-	//);
 
 	ReleaseDC(m_hWnd, hdc);
 }

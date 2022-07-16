@@ -2,6 +2,13 @@
 
 #include "Wnd.h"
 
+enum class SPRITE_MODE
+{
+	NONE = 0,
+	SELECT = 1,
+	UNSELECT = 2
+};
+
 class CMainView : public CWnd
 {
 private:
@@ -21,7 +28,10 @@ private:
 	POINT ptCurMousePos = {};
 
 	// ============ TEST ============
-	std::vector<D2D1_RECT_F> m_vSlicedRects;
+	static std::vector<D2D1_RECT_F> m_vSlicedRects;
+
+	// Sprite Mode
+	UINT m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
 private:
 	DWORD m_alphaZeroColor;
@@ -49,7 +59,7 @@ public:
 	void AutoSlice();
 
 public:
-	std::vector<D2D1_RECT_F>* GetSlicedRects() { return &m_vSlicedRects; }
+	static std::vector<D2D1_RECT_F>& GetSlicedRects() { return m_vSlicedRects; }
 
 public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
