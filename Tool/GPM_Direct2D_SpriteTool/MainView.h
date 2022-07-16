@@ -49,5 +49,8 @@ public:
 	void AutoSlice();
 
 public:
+	std::vector<D2D1_RECT_F>* GetSlicedRects() { return &m_vSlicedRects; }
+
+public:
 	virtual LRESULT WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam) override;
 };

@@ -370,7 +370,7 @@ void CMainView::Render()
 	D2D1_SIZE_F rtSize = pRT->GetSize();
 
 	// clear
-	pRT->Clear(D2D1::ColorF(0x7777ff)); // violet(변형)
+	pRT->Clear(D2D1::ColorF(0xaaaaff)); // violet(변형)
 	//pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
 	pRT->DrawBitmap(
@@ -391,12 +391,14 @@ void CMainView::Render()
 
 	ID2D1SolidColorBrush* pRedBrush;
 	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Red), &pRedBrush);
+		D2D1::ColorF(D2D1::ColorF(0xff'ff'00'00)), &pRedBrush);
 
 	for (vector<D2D1_RECT_F>::iterator it = m_vSlicedRects.begin(); it != m_vSlicedRects.end(); ++it)
 	{
 		pRT->DrawRectangle(*(it), pRedBrush);
 	}
+
+	pRedBrush->Release();
 
 	pRT->EndDraw();
 
