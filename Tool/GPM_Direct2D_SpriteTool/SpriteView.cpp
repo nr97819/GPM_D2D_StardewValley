@@ -6,7 +6,8 @@
 
 CSpriteView::CSpriteView()
 	: m_pMyBitmap(nullptr)
-	, m_slicedSpritesVec(nullptr)
+	, m_slicedSpritesVec{}
+	, m_selectedSpritesVec{}
 {
 }
 
@@ -113,9 +114,9 @@ void CSpriteView::Render()
 		UINT width = it->right - it->left;
 		UINT height = it->top - it->bottom;
 
-		// 크기 확대
-		/*width *= 1.5;
-		height *= 1.5;*/
+		// 임시 크기 확대
+		//width *= 1.5;
+		//height *= 1.5;*/
 
 		// =========== StartPosY에 대한 Exception ===========
 		if (iMaxHeight < height)
@@ -132,37 +133,108 @@ void CSpriteView::Render()
 			iMaxHeight = 0;
 		}
 
+
+		// ===== 멤버 변수(벡터)에 데이터 옮기기 [초기화] =====
+		SPRITE_INFO info(
+			POINT{ ptStartDrawPos.x, ptStartDrawPos.y },
+			*(it),
+			width,
+			height,
+			UNSELECTED
+		);
+
+		m_slicedSpritesVec.push_back(info);
+
+//pRT->DrawBitmap(
+//	pD2DBitmap,
+//	D2D1::RectF(
+//		ptStartDrawPos.x,
+//		ptStartDrawPos.y,
+//		ptStartDrawPos.x + width,
+//		ptStartDrawPos.y + height
+//	),
+//	1.0f, // Alpha 값
+//	D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+//	D2D1::RectF(
+//		it->left,
+//		it->top,
+//		it->right,
+//		it->bottom
+//	)
+//);
+
+////ptStartDrawPos.y += it->_ptDragRightBottom.y;
+
+//D2D1_RECT_F d2d_rectangle = D2D1::RectF(
+//	ptStartDrawPos.x,
+//	ptStartDrawPos.y,
+//	ptStartDrawPos.x + width,
+//	ptStartDrawPos.y + height
+//);
+//pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
+
+		UINT padding = 0; // 불필요
+		ptStartDrawPos.x += width + padding;
+	}
+
+
+
+	// ===== 실제 출력 부분 =====
+
+	ID2D1SolidColorBrush* pYellowBrush = nullptr;
+	pRT->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF(0x55'ff'ff'00)), &pYellowBrush);
+
+	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	{
+		// 이거 안먹는 이유가...?
+		float fAlpha = 1.f;
+		if (it->m_iSelected == SELECTED)
+			fAlpha = 0.1f;
+
 		pRT->DrawBitmap(
 			pD2DBitmap,
 			D2D1::RectF(
-				ptStartDrawPos.x,
-				ptStartDrawPos.y,
-				ptStartDrawPos.x + width, // 임시 크기 확장
-				ptStartDrawPos.y + height // 임시 크기 확장
+				it->m_ptStartPos.x,
+				it->m_ptStartPos.y,
+				it->m_ptStartPos.x + it->m_iWidth,
+				it->m_ptStartPos.y + it->m_iHeight
 			),
-			1.0f, // Alpha 값
+			fAlpha, // Alpha 값
 			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
 			D2D1::RectF(
-				it->left,
-				it->top,
-				it->right,
-				it->bottom
-			)
+				it->m_d2dRect.left,
+				it->m_d2dRect.top,
+				it->m_d2dRect.right,
+				it->m_d2dRect.bottom)
 		);
 
 		//ptStartDrawPos.y += it->_ptDragRightBottom.y;
 
 		D2D1_RECT_F d2d_rectangle = D2D1::RectF(
-			ptStartDrawPos.x,
-			ptStartDrawPos.y,
-			ptStartDrawPos.x + width, // 임시 크기 확장
-			ptStartDrawPos.y + height // 임시 크기 확장
+			it->m_ptStartPos.x,
+			it->m_ptStartPos.y,
+			it->m_ptStartPos.x + it->m_iWidth,
+			it->m_ptStartPos.y + it->m_iHeight
 		);
 		pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
 
-		UINT padding = 0; // 불필요
-		ptStartDrawPos.x += width + padding;
+		if (it->m_iSelected == SELECTED)
+		{
+			D2D1_RECT_F d2d_rectangle = D2D1::RectF(
+				it->m_ptStartPos.x,
+				it->m_ptStartPos.y,
+				it->m_ptStartPos.x + it->m_iWidth,
+				it->m_ptStartPos.y + it->m_iHeight
+			);
+
+			pRT->DrawRectangle(d2d_rectangle, pYellowBrush);
+
+			// Draw a filled rectangle.
+			m_pRenderTarget->FillRectangle(&d2d_rectangle, pYellowBrush);
+		}
 	}
+	pYellowBrush->Release();
 
 	pRT->EndDraw();
 
@@ -171,6 +243,46 @@ void CSpriteView::Render()
 	HDC hdc = GetDC(m_hWnd);
 
 	ReleaseDC(m_hWnd, hdc);
+}
+
+void CSpriteView::OnMouseUp(LPARAM _lParam)
+{
+	WORD pos_X = LOWORD(_lParam);
+	WORD pos_Y = HIWORD(_lParam);
+
+	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	{
+		if (pos_Y <= (it->m_ptStartPos.y + it->m_iHeight) &&
+			pos_Y >= (it->m_ptStartPos.y) &&
+			pos_X <= (it->m_ptStartPos.x + it->m_iWidth) &&
+			pos_X >= (it->m_ptStartPos.x))
+		{
+			if (it->m_iSelected == UNSELECTED)
+			{
+				it->m_iSelected = SELECTED;
+				m_selectedSpritesVec.push_back(*(it));
+			}
+			else
+			{
+				it->m_iSelected = UNSELECTED;
+
+				SPRITE_INFO temp = m_selectedSpritesVec.back();
+				m_selectedSpritesVec.pop_back();
+
+				// vector에 원소가 없는 예외 처리를 위함 (긴급 조치 !!)
+				if (m_selectedSpritesVec.empty())
+				{
+					m_selectedSpritesVec.push_back(SPRITE_INFO{});
+				}
+
+				it->m_ptStartPos = temp.m_ptStartPos;
+				it->m_d2dRect = temp.m_d2dRect;
+				it->m_iWidth = temp.m_iWidth;
+				it->m_iHeight = temp.m_iHeight;
+				it->m_iSelected = temp.m_iSelected;
+			}
+		}
+	}
 }
 
 LRESULT CSpriteView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM _lParam)
@@ -202,6 +314,8 @@ LRESULT CSpriteView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARA
 
 	case WM_LBUTTONUP:
 	{
+		OnMouseUp(_lParam);
+
 		InvalidateRect(m_hWnd, NULL, true);
 	}
 		break;

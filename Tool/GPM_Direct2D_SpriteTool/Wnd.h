@@ -40,6 +40,7 @@ protected:
 	CWICBitmap*				m_pBack_MyWICBitmap;*/
 
 	ID2D1SolidColorBrush*	m_pD2D1RedBrush = NULL;
+	//ID2D1SolidColorBrush*	m_pD2D1YelloBrush = NULL;
 
 	// Wnd 공통 사용할 static 변수 (vector)
 	static std::vector<SLICE_RECT_POS> m_vSlicedPos;

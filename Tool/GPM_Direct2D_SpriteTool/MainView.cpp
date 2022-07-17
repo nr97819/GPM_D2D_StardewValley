@@ -343,6 +343,14 @@ void CMainView::OnMouseUp(LPARAM _lParam)
 					{
 						D2D1_RECT_F tempRt = m_vSlicedRects.back();
 						m_vSlicedRects.pop_back();
+
+						// vector에 원소가 없는 예외 처리를 위함 (긴급 조치 !!)
+						// -> 얘는 UNSELECT가 없어서 필요는 없지만... 일단 넣어둠
+						if (m_vSlicedRects.empty())
+						{
+							m_vSlicedRects.push_back(D2D1_RECT_F{});
+						}
+
 						it->top = tempRt.top;
 						it->bottom = tempRt.bottom;
 						it->left = tempRt.left;
