@@ -20,6 +20,12 @@
     <Filter Include="소스 파일\Engine\Algorithm">
       <UniqueIdentifier>{09b98649-06cf-4a9e-a554-503fa0abe816}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Engine\Manager">
+      <UniqueIdentifier>{0b428dd3-b625-4835-857e-37fdcf86da24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Engine\Header">
+      <UniqueIdentifier>{1922b8ab-16ff-4c44-8729-65884b5deac5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GPM_Direct2D_SpriteTool.cpp">
@@ -48,6 +54,12 @@
     </ClCompile>
     <ClCompile Include="SpriteView.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeMgr.cpp">
+      <Filter>소스 파일\Engine\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ResMgr.cpp">
+      <Filter>소스 파일\Engine\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +90,15 @@
     </ClInclude>
     <ClInclude Include="FloodFill.h">
       <Filter>소스 파일\Engine\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeMgr.h">
+      <Filter>소스 파일\Engine\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>소스 파일\Engine\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ResMgr.h">
+      <Filter>소스 파일\Engine\Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

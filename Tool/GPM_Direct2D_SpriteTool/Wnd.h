@@ -34,6 +34,9 @@ protected:
 	CBitmap*				m_pMyBitmap;
 	CWICBitmap*				m_pMyWICBitmap;
 
+	// ============= Wnd 간에 Bitmap 전달을 위한 작업 =============
+	static wstring			m_wsImageFileName;
+
 	// Back RT
 	/*ID2D1HwndRenderTarget*	m_pBack_RenderTarget;
 	CBitmap*				m_pBack_MyBitmap;
@@ -84,5 +87,6 @@ public:
 
 	CBitmap* GetMyBitmap() { return m_pMyBitmap; }
 	CWICBitmap* GetMyWICBitmap() { return m_pMyWICBitmap; }
+	static const wstring& GetImagePath() { return m_wsImageFileName; }
 };
 

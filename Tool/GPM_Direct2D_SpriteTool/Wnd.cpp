@@ -3,6 +3,7 @@
 #include "D2DCore.h"
 
 std::vector<SLICE_RECT_POS> CWnd::m_vSlicedPos = {};
+wstring	CWnd::m_wsImageFileName = {};
 
 CWnd::CWnd()
 	: m_pRenderTarget(nullptr)
@@ -68,7 +69,7 @@ HWND CWnd::Create(HINSTANCE _hInstance, int _nCmdShow,
 		m_wTitleName.c_str(),
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		1000, 1000,
+		200, 200,
 		NULL,
 		NULL,
 		m_hInstance,
@@ -116,6 +117,9 @@ HRESULT CWnd::InitTarget()
 HRESULT CWnd::InitBitmap(const wstring& _wsImageFileName)
 {
 	HRESULT hr = S_OK;
+
+	// ============= Wnd 간에 Bitmap 전달을 위한 작업 =============
+	m_wsImageFileName = _wsImageFileName;
 
 	// ============= Front RT =============
 	m_pMyBitmap = new CBitmap();
