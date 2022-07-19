@@ -36,6 +36,33 @@ struct SPRITE_INFO
 		m_iHeight = _iHeight;
 		m_iSelected = UNSELECTED;
 	}
+
+	SPRITE_INFO& operator=(const SPRITE_INFO& _other)
+	{
+		m_ptStartPos = _other.m_ptStartPos;
+		m_d2dRect = _other.m_d2dRect;
+		m_iWidth = _other.m_iWidth;
+		m_iHeight = _other.m_iHeight;
+		m_iSelected = _other.m_iSelected;
+
+		return *this;
+	}
+
+	bool operator==(const SPRITE_INFO& _other)
+	{
+		bool bResult = true;
+
+		bResult &= (m_ptStartPos.x == _other.m_ptStartPos.x && 
+					m_ptStartPos.y == _other.m_ptStartPos.y);
+		bResult &= (m_d2dRect.top == _other.m_d2dRect.top &&
+					m_d2dRect.bottom == _other.m_d2dRect.bottom &&
+					m_d2dRect.left == _other.m_d2dRect.left &&
+					m_d2dRect.right == _other.m_d2dRect.right);
+		bResult &= (m_iWidth == _other.m_iWidth);
+		bResult &= (m_iHeight == _other.m_iHeight);
+
+		return bResult;
+	}
 };
 
 class CSpriteView : public CWnd

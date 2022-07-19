@@ -110,10 +110,14 @@ void CSpriteView::Render()
 
 
 	// ======================================================
-	// --------------- Auto Slice 관련 출력 ------------------
+	// ------------- Auto Slice 관련 instance 삽입 -----------
 	// ======================================================
 
 	std::vector<D2D1_RECT_F> rects = CMainView::GetSlicedRects();
+
+
+	// ====== IMPORTANT ======
+	m_slicedSpritesVec.clear();
 
 	// 임시 비활성화
 	for (std::vector<D2D1_RECT_F>::iterator it = rects.begin(); it != rects.end(); ++it)
@@ -229,25 +233,35 @@ void CSpriteView::Render()
 		pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
 	}
 
-	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	//for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	//{
+	//	if (it->m_iSelected == SELECTED)
+	//	{
+	//		D2D1_RECT_F d2d_rectangle = D2D1::RectF(
+	//			it->m_ptStartPos.x,
+	//			it->m_ptStartPos.y,
+	//			it->m_ptStartPos.x + it->m_iWidth,
+	//			it->m_ptStartPos.y + it->m_iHeight
+	//		);
+
+	//		//pRT->DrawRectangle(d2d_rectangle, pYellowBrush);
+
+	//		// Draw a filled rectangle.
+	//		m_pRenderTarget->FillRectangle(&d2d_rectangle, pYellowBrush);
+	//	}
+	//}
+
+	for (auto it = m_selectedSpritesVec.begin(); it != m_selectedSpritesVec.end(); ++it)
 	{
-		if (it->m_iSelected == SELECTED)
-		{
-			D2D1_RECT_F d2d_rectangle = D2D1::RectF(
-				it->m_ptStartPos.x,
-				it->m_ptStartPos.y,
-				it->m_ptStartPos.x + it->m_iWidth,
-				it->m_ptStartPos.y + it->m_iHeight
-			);
+		D2D1_RECT_F d2d_rectangle = D2D1::RectF(
+			it->m_ptStartPos.x,
+			it->m_ptStartPos.y,
+			it->m_ptStartPos.x + it->m_iWidth,
+			it->m_ptStartPos.y + it->m_iHeight
+		);
 
-			//pRT->DrawRectangle(d2d_rectangle, pYellowBrush);
-
-			// Draw a filled rectangle.
-			m_pRenderTarget->FillRectangle(&d2d_rectangle, pYellowBrush);
-		}
+		m_pRenderTarget->FillRectangle(&d2d_rectangle, pYellowBrush);
 	}
-
-	//m_slicedSpritesVec.clear();
 
 	pYellowBrush->Release();
 
@@ -265,37 +279,74 @@ void CSpriteView::OnMouseUp(LPARAM _lParam)
 	WORD pos_X = LOWORD(_lParam);
 	WORD pos_Y = HIWORD(_lParam);
 
-	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	for (auto sliceIt = m_slicedSpritesVec.begin(); sliceIt != m_slicedSpritesVec.end(); ++sliceIt)
 	{
-		if (pos_Y <= (it->m_ptStartPos.y + it->m_iHeight) &&
-			pos_Y >= (it->m_ptStartPos.y) &&
-			pos_X <= (it->m_ptStartPos.x + it->m_iWidth) &&
-			pos_X >= (it->m_ptStartPos.x))
+		//bool bIsNew = true;
+
+		if (pos_Y <= (sliceIt->m_ptStartPos.y + sliceIt->m_iHeight) &&
+			pos_Y >= (sliceIt->m_ptStartPos.y) &&
+			pos_X <= (sliceIt->m_ptStartPos.x + sliceIt->m_iWidth) &&
+			pos_X >= (sliceIt->m_ptStartPos.x))
 		{
-			if (it->m_iSelected == UNSELECTED)
+			for (auto selectIt = m_selectedSpritesVec.begin(); selectIt != m_selectedSpritesVec.end(); ++selectIt)
 			{
-				it->m_iSelected = SELECTED;
-				m_selectedSpritesVec.push_back(*(it));
-			}
-			else if (it->m_iSelected == SELECTED)
-			{
-				it->m_iSelected = UNSELECTED;
-
-				SPRITE_INFO temp = m_selectedSpritesVec.back();
-				m_selectedSpritesVec.pop_back();
-
-				// vector에 원소가 없는 예외 처리를 위함 (긴급 조치 !!)
-				if (m_selectedSpritesVec.empty())
+				if (*sliceIt == *selectIt)
 				{
-					m_selectedSpritesVec.push_back(SPRITE_INFO{});
-				}
+					if (*selectIt == m_selectedSpritesVec.back())
+					{
+						m_selectedSpritesVec.pop_back();
 
-				it->m_ptStartPos = temp.m_ptStartPos;
-				it->m_d2dRect = temp.m_d2dRect;
-				it->m_iWidth = temp.m_iWidth;
-				it->m_iHeight = temp.m_iHeight;
-				it->m_iSelected = temp.m_iSelected;
+						// 볼일이 끝났으니, 함수 바로 탈출 !!
+						return;
+					}
+
+					SPRITE_INFO tempInfo = m_selectedSpritesVec.back();
+					m_selectedSpritesVec.pop_back();
+
+					// vector에 원소가 없는 예외 처리를 위함 (긴급 조치 !!)
+					// -> 얘는 UNSELECT가 없어서 필요는 없지만... 일단 넣어둠
+					if (m_selectedSpritesVec.empty())
+					{
+						m_selectedSpritesVec.push_back(SPRITE_INFO{});
+					}
+
+					(*selectIt) = tempInfo;
+
+					// 볼일이 끝났으니, 함수 바로 탈출 !!
+					return;
+					//bIsNew = true;
+				}
 			}
+
+			m_selectedSpritesVec.push_back(*sliceIt);
+
+			// 볼일이 끝났으니, 함수 바로 탈출 !!
+			return;
+
+			//if (it->m_iSelected == UNSELECTED)
+			//{
+			//	it->m_iSelected = SELECTED;
+			//	m_selectedSpritesVec.push_back(*(it));
+			//}
+			//else if (it->m_iSelected == SELECTED)
+			//{
+			//	it->m_iSelected = UNSELECTED;
+
+			//	SPRITE_INFO temp = m_selectedSpritesVec.back();
+			//	m_selectedSpritesVec.pop_back();
+
+			//	// vector에 원소가 없는 예외 처리를 위함 (긴급 조치 !!)
+			//	if (m_selectedSpritesVec.empty())
+			//	{
+			//		m_selectedSpritesVec.push_back(SPRITE_INFO{});
+			//	}
+
+			//	it->m_ptStartPos = temp.m_ptStartPos;
+			//	it->m_d2dRect = temp.m_d2dRect;
+			//	it->m_iWidth = temp.m_iWidth;
+			//	it->m_iHeight = temp.m_iHeight;
+			//	it->m_iSelected = temp.m_iSelected;
+			//}
 		}
 	}
 }
