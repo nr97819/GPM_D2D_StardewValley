@@ -2,10 +2,16 @@
 
 #include "Wnd.h"
 
+#include "SpriteView.h"
+#include <vector>
+
+
 class CAnimView : public CWnd
 {
 private:
-	// ¸â¹ö º¯¼ö
+	std::vector<SPRITE_INFO> m_vSelectedSprites;
+
+	//static std::vector<SPRITE_INFO> m_vResultVec;
 
 public:
 	CAnimView();

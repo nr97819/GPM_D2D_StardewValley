@@ -1,6 +1,9 @@
 #include "AnimView.h"
 
+//std::vector<SPRITE_INFO> CAnimView::m_vResultVec;
+
 CAnimView::CAnimView()
+	: m_vSelectedSprites{}
 {
 }
 
@@ -38,6 +41,42 @@ void CAnimView::Render()
 	);
 	pRT->EndDraw();
 
+
+	// ===== SpriteView로 부터 받아온 Vector 출력 =====
+	m_vSelectedSprites = CSpriteView::GetSelectedSprites();
+
+	/*for (auto it = vTemp.begin(); it != vTemp.end(); ++it)
+	{
+		m_vSelectedSprites.push_back(*it);
+	}*/
+
+	// ===== SpriteView의 D2D1Bitmap을 가져와서 교체한다. ======
+	/*CSpriteView spriteView
+	ID2D1Bitmap* pD2DBitmap = *(GetMyBitmap()->GetD2DBitmap());*/
+
+	//for (auto it = m_vSelectedSprites.begin(); it != m_vSelectedSprites.end(); ++it)
+	//{
+	//	float fAlpha = 1.f;
+	//	/*if (it->m_iSelected == SELECTED)
+	//		fAlpha = 0.1f;*/
+
+	//	pRT->DrawBitmap(
+	//		pD2DBitmap,
+	//		D2D1::RectF(
+	//			it->m_ptStartPos.x,
+	//			it->m_ptStartPos.y,
+	//			it->m_ptStartPos.x + it->m_iWidth,
+	//			it->m_ptStartPos.y + it->m_iHeight
+	//		),
+	//		fAlpha, // Alpha 값
+	//		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+	//		D2D1::RectF(
+	//			it->m_d2dRect.left,
+	//			it->m_d2dRect.top,
+	//			it->m_d2dRect.right,
+	//			it->m_d2dRect.bottom)
+	//	);
+	//}
 
 	HDC hdc = GetDC(m_hWnd);
 

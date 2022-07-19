@@ -41,11 +41,11 @@ struct SPRITE_INFO
 class CSpriteView : public CWnd
 {
 private:
-	CBitmap*						m_pMyBitmap;
-	std::vector<SPRITE_INFO>		m_slicedSpritesVec;
+	CBitmap*							m_pMyBitmap;
+	std::vector<SPRITE_INFO>			m_slicedSpritesVec;
 
 	// AnimView로 보내기 위한 (선택된) 스프라이트 벡터
-	std::vector<SPRITE_INFO>		m_selectedSpritesVec;
+	static std::vector<SPRITE_INFO>		m_selectedSpritesVec;
 
 public:
 	CSpriteView();
@@ -61,4 +61,10 @@ public:
 
 public:
 	void OnMouseUp(LPARAM _lParam);
+	
+public:
+	static std::vector<SPRITE_INFO>& GetSelectedSprites() { return m_selectedSpritesVec; }
+
+	// 테스트용
+	//CBitmap* GetMyBitmap() { return m_pMyBitmap; }
 };

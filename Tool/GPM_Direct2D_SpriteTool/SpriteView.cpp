@@ -4,10 +4,11 @@
 
 #include "MainView.h"
 
+std::vector<SPRITE_INFO> CSpriteView::m_selectedSpritesVec;
+
 CSpriteView::CSpriteView()
 	: m_pMyBitmap(nullptr)
 	, m_slicedSpritesVec{}
-	, m_selectedSpritesVec{}
 {
 }
 
@@ -50,6 +51,9 @@ void CSpriteView::Render()
 
 	for (std::vector<SLICE_RECT_POS>::iterator it = m_vSlicedPos.begin(); it != m_vSlicedPos.end(); ++it)
 	{
+		// 임시 비활성화
+		continue;
+
 		UINT width = it->_ptDragRightBottom.x - it->_ptDragLeftTop.x;
 		UINT height = it->_ptDragRightBottom.y - it->_ptDragLeftTop.y;
 
@@ -104,11 +108,14 @@ void CSpriteView::Render()
 		ptStartDrawPos.x += width + padding;
 	}
 
+
 	// ======================================================
 	// --------------- Auto Slice 관련 출력 ------------------
 	// ======================================================
+
 	std::vector<D2D1_RECT_F> rects = CMainView::GetSlicedRects();
 
+	// 임시 비활성화
 	for (std::vector<D2D1_RECT_F>::iterator it = rects.begin(); it != rects.end(); ++it)
 	{
 		UINT width = it->right - it->left;
@@ -179,18 +186,20 @@ void CSpriteView::Render()
 
 
 
-	// ===== 실제 출력 부분 =====
+	// =============================================
+	// =============== 실제 출력 부분 ===============
+	// =============================================
 
+	// D2D1 브러시의 Alpha값 조절 방법 혼동 주의 !!
 	ID2D1SolidColorBrush* pYellowBrush = nullptr;
-	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF(0x55'ff'ff'00)), &pYellowBrush);
+	pRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0xffff00, 0.3f)), &pYellowBrush);
 
 	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
 	{
 		// 이거 안먹는 이유가...?
 		float fAlpha = 1.f;
-		if (it->m_iSelected == SELECTED)
-			fAlpha = 0.1f;
+		/*if (it->m_iSelected == SELECTED)
+			fAlpha = 0.1f;*/
 
 		pRT->DrawBitmap(
 			pD2DBitmap,
@@ -218,7 +227,10 @@ void CSpriteView::Render()
 			it->m_ptStartPos.y + it->m_iHeight
 		);
 		pRT->DrawRectangle(d2d_rectangle, m_pD2D1RedBrush);
+	}
 
+	for (auto it = m_slicedSpritesVec.begin(); it != m_slicedSpritesVec.end(); ++it)
+	{
 		if (it->m_iSelected == SELECTED)
 		{
 			D2D1_RECT_F d2d_rectangle = D2D1::RectF(
@@ -228,12 +240,15 @@ void CSpriteView::Render()
 				it->m_ptStartPos.y + it->m_iHeight
 			);
 
-			pRT->DrawRectangle(d2d_rectangle, pYellowBrush);
+			//pRT->DrawRectangle(d2d_rectangle, pYellowBrush);
 
 			// Draw a filled rectangle.
 			m_pRenderTarget->FillRectangle(&d2d_rectangle, pYellowBrush);
 		}
 	}
+
+	//m_slicedSpritesVec.clear();
+
 	pYellowBrush->Release();
 
 	pRT->EndDraw();
@@ -262,7 +277,7 @@ void CSpriteView::OnMouseUp(LPARAM _lParam)
 				it->m_iSelected = SELECTED;
 				m_selectedSpritesVec.push_back(*(it));
 			}
-			else
+			else if (it->m_iSelected == SELECTED)
 			{
 				it->m_iSelected = UNSELECTED;
 
