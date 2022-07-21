@@ -26,19 +26,19 @@
     <Filter Include="소스 파일\Engine\Header">
       <UniqueIdentifier>{1922b8ab-16ff-4c44-8729-65884b5deac5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Engine\Resource">
+      <UniqueIdentifier>{13dec559-663c-4edf-a9a6-ee9188a2b9a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Engine\Core">
+      <UniqueIdentifier>{59690a43-f012-4c0b-b19e-e28f0f2a562c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GPM_Direct2D_SpriteTool.cpp">
       <Filter>소스 파일\Main</Filter>
     </ClCompile>
-    <ClCompile Include="D2DCore.cpp">
-      <Filter>소스 파일\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>소스 파일\App</Filter>
-    </ClCompile>
-    <ClCompile Include="Bitmap.cpp">
-      <Filter>소스 파일\Engine</Filter>
     </ClCompile>
     <ClCompile Include="AnimView.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
@@ -49,9 +49,6 @@
     <ClCompile Include="Wnd.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClCompile>
-    <ClCompile Include="WICBitmap.cpp">
-      <Filter>소스 파일\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="SpriteView.cpp">
       <Filter>소스 파일\Engine\Wnd</Filter>
     </ClCompile>
@@ -61,16 +58,22 @@
     <ClCompile Include="ResMgr.cpp">
       <Filter>소스 파일\Engine\Manager</Filter>
     </ClCompile>
+    <ClCompile Include="Res.cpp">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="WICBitmap.cpp">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Bitmap.cpp">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DCore.cpp">
+      <Filter>소스 파일\Engine\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D2DCore.h">
-      <Filter>소스 파일\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="App.h">
       <Filter>소스 파일\App</Filter>
-    </ClInclude>
-    <ClInclude Include="Bitmap.h">
-      <Filter>소스 파일\Engine</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h" />
     <ClInclude Include="AnimView.h">
@@ -81,9 +84,6 @@
     </ClInclude>
     <ClInclude Include="Wnd.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
-    </ClInclude>
-    <ClInclude Include="WICBitmap.h">
-      <Filter>소스 파일\Engine</Filter>
     </ClInclude>
     <ClInclude Include="SpriteView.h">
       <Filter>소스 파일\Engine\Wnd</Filter>
@@ -99,6 +99,18 @@
     </ClInclude>
     <ClInclude Include="ResMgr.h">
       <Filter>소스 파일\Engine\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Res.h">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="WICBitmap.h">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Bitmap.h">
+      <Filter>소스 파일\Engine\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DCore.h">
+      <Filter>소스 파일\Engine\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

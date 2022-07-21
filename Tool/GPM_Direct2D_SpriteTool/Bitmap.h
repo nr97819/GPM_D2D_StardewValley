@@ -9,7 +9,9 @@
 #include <string>
 using std::wstring;
 
-class CBitmap
+#include "Res.h"
+
+class CBitmap : public CRes
 {
 private:
 	ID2D1Bitmap* m_pD2DBitmap;

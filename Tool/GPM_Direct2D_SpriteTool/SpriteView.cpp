@@ -282,6 +282,7 @@ void CSpriteView::OnMouseUp(LPARAM _lParam)
 	for (auto sliceIt = m_slicedSpritesVec.begin(); sliceIt != m_slicedSpritesVec.end(); ++sliceIt)
 	{
 		//bool bIsNew = true;
+		//if (pos_Y > (sliceIt->m_ptStartPos.y + sliceIt->m_iHeight) continue ;
 
 		if (pos_Y <= (sliceIt->m_ptStartPos.y + sliceIt->m_iHeight) &&
 			pos_Y >= (sliceIt->m_ptStartPos.y) &&

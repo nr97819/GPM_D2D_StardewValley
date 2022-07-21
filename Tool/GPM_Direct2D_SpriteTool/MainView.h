@@ -13,8 +13,10 @@ class CMainView : public CWnd
 {
 private:
 	bool m_bSetAlphaZeroState;
+
 	bool m_bDragSliceState;
 	bool m_bAutoSliceState;
+	bool m_bGridSliceState;
 
 	bool m_bIsLButtonDown;
 
@@ -57,6 +59,7 @@ public:
 	void DrawSlicedSprite();
 
 	void AutoSlice();
+	void GridSlice(UINT _wTerm, UINT _hTerm);
 
 public:
 	static std::vector<D2D1_RECT_F>& GetSlicedRects() { return m_vSlicedRects; }

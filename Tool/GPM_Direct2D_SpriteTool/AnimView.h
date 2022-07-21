@@ -16,6 +16,8 @@ private:
 	CBitmap* m_pSprieViewBitmap;
 	ID2D1Bitmap* m_spriteViewD2DBitmap;
 
+	UINT iCurFrame = 0;
+
 public:
 	CAnimView();
 	~CAnimView();

@@ -12,9 +12,9 @@ CMainView::CMainView()
 	
 	, m_bDragSliceState(false)
 	, m_bAutoSliceState(false)
+	, m_bGridSliceState(false)
 
 	, m_bIsLButtonDown(false)
-
 	, m_bIsInvalidSlicedRect(false)
 {
 }
@@ -149,6 +149,13 @@ void CMainView::DrawSlicedSprite()
 
 		m_bAutoSliceState = false;
 	}
+	else if (m_bGridSliceState)
+	{
+		// 중복 처리 안하도록 추후 수정 (임시 함수)
+		GridSlice(16, 16);
+
+		m_bGridSliceState = false;
+	}
 	else
 	{
 		// ... ...
@@ -159,6 +166,51 @@ void CMainView::DrawSlicedSprite()
 	DeleteObject(hRedPen);
 
 	ReleaseDC(m_hWnd, hdc);
+}
+
+void CMainView::GridSlice(UINT _wTerm, UINT _hTerm)
+{
+	// 팝업 (입력 창)
+	// ...
+
+	ID2D1Bitmap* d2dBitmap = *(m_pMyBitmap->GetD2DBitmap());
+
+	UINT width = (UINT)d2dBitmap->GetSize().width;
+	UINT height = (UINT)d2dBitmap->GetSize().height;
+
+	// 초기화
+	DWORD* buffer = new DWORD[width * height];
+	for (int i = 0; i < width * height; ++i)
+	{
+		*(buffer + i) = 0;
+	}
+
+	// 벡터에 rect 형태로 담은 뒤, 일괄적으로 출력하는 식으로 수정하기
+	
+	for (UINT y = 0; y < height - 1; y += _hTerm)
+	{
+		for (UINT x = 0; x < width - 1; ++x)
+		{
+			(*(buffer + (y * width) + x)) = 0xff'ff'00'00;
+		}
+	}
+	for (UINT x = 0; x < width - 1; x += _wTerm)
+	{
+		for (UINT y = 0; y < height - 1; ++y)
+		{
+			(*(buffer + (y * width) + x)) = 0xff'ff'00'00;
+		}
+	}
+	// [버퍼의 수정된 alpha들을 WIC에도 적용 : 현재 불필요]
+	m_pMyWICBitmap->SetWICMemory(&buffer, width, height);
+
+	delete[] buffer;
+
+	// 변경된 WICBitmap을 D2D1Bitmap에 적용 (새로고침)
+	CD2DCore::GetInst()->CreateD2D1BitampFromWICBitmap(
+		m_pRenderTarget,
+		m_pMyWICBitmap->GetWICBitmap(),
+		m_pMyBitmap->GetD2DBitmap());
 }
 
 void CMainView::AutoSlice()
@@ -516,36 +568,67 @@ LRESULT CMainView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 
 		case ID_SPRITE_AUTOSLICE:
 		{
-			if (m_bDragSliceState)
-				m_bDragSliceState = false;
 			if (m_bSetAlphaZeroState)
 				m_bSetAlphaZeroState = false;
+
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+			if (m_bGridSliceState)
+				m_bGridSliceState = false;
+
 			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
+			// 활성화
 			m_bAutoSliceState = true;
 		}
 		break;
 
 		case ID_SPRITE_DRAGSLICE:
 		{
-			if (m_bDragSliceState)
-				m_bDragSliceState = false;
 			if (m_bSetAlphaZeroState)
 				m_bSetAlphaZeroState = false;
+
+			if (m_bAutoSliceState)
+				m_bAutoSliceState = false;
+			if (m_bGridSliceState)
+				m_bGridSliceState = false;
+
 			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
+			// 활성화
 			m_bDragSliceState = true;
+		}
+		break; 
+
+		case ID_SPRITE_GRIDSLICE:
+		{
+			if (m_bSetAlphaZeroState)
+				m_bSetAlphaZeroState = false;
+
+			if (m_bAutoSliceState)
+				m_bAutoSliceState = false;
+			if (m_bDragSliceState)
+				m_bDragSliceState = false;
+
+			m_spriteMode = (UINT)SPRITE_MODE::NONE;
+
+			// 활성화
+			m_bGridSliceState = true;
 		}
 		break;
 
 		case ID_COLOR_SETALPHAZERO:
 		{
+			if (m_bAutoSliceState)
+				m_bAutoSliceState = false;
+			if (m_bGridSliceState)
+				m_bGridSliceState = false;
 			if (m_bDragSliceState)
 				m_bDragSliceState = false;
-			if (m_bDragSliceState)
-				m_bDragSliceState = false;
+
 			m_spriteMode = (UINT)SPRITE_MODE::NONE;
 
+			// 활성화
 			m_bSetAlphaZeroState = true;
 		}
 		break;

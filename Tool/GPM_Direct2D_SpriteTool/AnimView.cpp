@@ -1,6 +1,6 @@
 #include "AnimView.h"
 
-#include "TimeMgr.h"
+//#include "TimeMgr.h"
 
 //std::vector<SPRITE_INFO> CAnimView::m_vResultVec;
 
@@ -19,12 +19,12 @@ CAnimView::~CAnimView()
 
 void CAnimView::Init()
 {
-	CTimeMgr::GetInst()->Init();
+	//CTimeMgr::GetInst()->Init();
 }
 
 void CAnimView::Update()
 {
-	CTimeMgr::GetInst()->Update();
+	//CTimeMgr::GetInst()->Update();
 }
 
 void CAnimView::Render()
@@ -72,23 +72,43 @@ void CAnimView::Render()
 	float fAlpha = 1.f;
 	//static auto it = m_vSelectedSprites.begin();
 
-	for (auto it = m_vSelectedSprites.begin(); it != m_vSelectedSprites.end(); ++it)
+	//for (auto it = m_vSelectedSprites.begin(); it != m_vSelectedSprites.end(); ++it)
+	//{
+	//	pRT->DrawBitmap(
+	//		m_spriteViewD2DBitmap,
+	//		D2D1::RectF(
+	//			50.f, // 대충, 배경이랑 어울리는 위치 잡아만 놓은 것..
+	//			150.f,
+	//			50.f + it->m_iWidth,
+	//			150.f + it->m_iHeight
+	//		),
+	//		fAlpha, // Alpha 값
+	//		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+	//		D2D1::RectF(
+	//			it->m_d2dRect.left,
+	//			it->m_d2dRect.top,
+	//			it->m_d2dRect.right,
+	//			it->m_d2dRect.bottom)
+	//	);
+	//}
+
+	if (m_vSelectedSprites.size() > 0)
 	{
 		pRT->DrawBitmap(
 			m_spriteViewD2DBitmap,
 			D2D1::RectF(
 				50.f, // 대충, 배경이랑 어울리는 위치 잡아만 놓은 것..
-				300.f,
-				50.f + it->m_iWidth,
-				300.f + it->m_iHeight
+				150.f,
+				50.f + m_vSelectedSprites.at(iCurFrame).m_iWidth,
+				150.f + m_vSelectedSprites.at(iCurFrame).m_iHeight
 			),
 			fAlpha, // Alpha 값
 			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
 			D2D1::RectF(
-				it->m_d2dRect.left,
-				it->m_d2dRect.top,
-				it->m_d2dRect.right,
-				it->m_d2dRect.bottom)
+				m_vSelectedSprites.at(iCurFrame).m_d2dRect.left,
+				m_vSelectedSprites.at(iCurFrame).m_d2dRect.top,
+				m_vSelectedSprites.at(iCurFrame).m_d2dRect.right,
+				m_vSelectedSprites.at(iCurFrame).m_d2dRect.bottom)
 		);
 	}
 
@@ -160,15 +180,6 @@ LRESULT CAnimView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 	int width = 0;
 	int height = 0;
 
-	// TimeMgr : 수시로 새로고침
-	static double dAcc = 0.;
-	Update();
-	dAcc += fDT;
-	if (dAcc >= 0.1)
-	{
-		InvalidateRect(m_hWnd, NULL, true);
-		dAcc = 0.;
-	}
 	// ...
 
 	// =====================================
@@ -177,9 +188,14 @@ LRESULT CAnimView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 	{
 	case WM_CREATE:
 	{
-		Init();
+		//Init();
+		SetTimer(_hWnd, 1, 150, NULL);
 	}
 		break;
+
+	/*case WM_TIMER:
+		Update();
+		break;*/
 
 	case WM_PAINT:
 	{
@@ -220,6 +236,11 @@ LRESULT CAnimView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 		wsprintf(str, L"RGB Value : %.8x", color);
 		TextOut(hdc, 10, iWndHeight - 30, str, wcslen(str));
 
+
+		// ===== Anim 출력 안내 문구 =====
+		wsprintf(str, L"Press \'A\' To See Animation");
+		TextOut(hdc, 10, 10, str, wcslen(str));
+
 		ReleaseDC(_hWnd, hdc);
 	}
 	break;
@@ -233,6 +254,41 @@ LRESULT CAnimView::WndMsgProc(HWND _hWnd, UINT _message, WPARAM _wParam, LPARAM 
 			m_pRenderTarget->Resize({ (UINT32)width, (UINT32)height });
 	}
 	break;
+
+	case WM_TIMER:
+	{
+		if (m_vSelectedSprites.size() > 0)
+			iCurFrame = (iCurFrame + 1) % m_vSelectedSprites.size();
+
+		InvalidateRect(m_hWnd, NULL, true);
+	}
+	break;
+
+	case WM_KEYDOWN:
+	{
+		// TimeMgr : 수시로 새로고침
+		//static double dAcc = 0.;
+		//Update();
+		//dAcc += fDT;
+		//if (dAcc >= 0.14)
+		//{
+		//	if (m_vSelectedSprites.size() > 0)
+		//		iCurFrame = (iCurFrame + 1) % m_vSelectedSprites.size();
+		//	/*if (iCurFrame >= m_vAnimVec.size())
+		//		iCurFrame = 0;*/
+
+		//	dAcc = 0.;
+
+		//	InvalidateRect(m_hWnd, NULL, true);
+		//}
+	}
+	break;
+
+	case WM_MOUSEWHEEL:
+	{
+		int a = 1;
+	}
+		break;
 
 	case WM_COMMAND:
 		break;
